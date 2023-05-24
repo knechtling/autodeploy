@@ -1,0 +1,27 @@
+---
+
+- include_tasks: create_user.yml
+
+- name: system upgrade
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+
+- include_tasks: pacman.yml
+- include_tasks: aur.yml
+
+- name: install packages
+  community.general.pacman:
+    name: "{{ packages }}"
+    state: present
+
+- name: install aur packages
+  kewlfft.aur.aur:
+    name: "{{ aurpackages }}"
+    state: present
+  become: yes
+  become_user: aur_builder
+
+- include_tasks: gitmakeinstall.yml
+
+- include_tasks: dotfiles.yml

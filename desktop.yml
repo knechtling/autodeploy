@@ -1,0 +1,6 @@
+---
+- name: configure desktop
+  hosts: archlinux
+  roles:
+  - desktop
+  become: true

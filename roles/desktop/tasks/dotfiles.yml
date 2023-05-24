@@ -1,0 +1,48 @@
+---
+
+- name: Ensure .tmp dir is empty
+  become: yes
+  become_user: anton
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.installtmp"
+    state: absent
+
+- name: Create a .tmp directory
+  become: yes
+  become_user: anton
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.installtmp"
+    state: directory
+
+- name: cloning dotfiles repo
+  become: yes
+  become_user: anton
+  ansible.builtin.git:
+    repo: "{{ dotfilesrepo }}"
+    dest: "/home/{{ user }}/.installtmp"
+    clone: yes
+
+- name: remove unneeded git files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /home/{{ user }}/.installtmp/.git
+    - /home/{{ user }}/.installtmp/README.md
+    - /home/{{ user }}/.installtmp/LICENSE
+    - /home/{{ user }}/.installtmp/FUNDING.yml
+
+- name: copying dotfiles into config dir
+  copy:
+    src: "/home/{{ user }}/.installtmp/"
+    remote_src: yes
+    dest: "/home/{{ user }}/"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    force: yes
+    follow: yes
+
+- name: remove tmp dir
+  file:
+    path: "home/{{ user }}/.installtmp"
+    state: directory
