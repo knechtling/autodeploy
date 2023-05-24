@@ -25,3 +25,11 @@
 - include_tasks: gitmakeinstall.yml
 
 - include_tasks: dotfiles.yml
+
+- name: link default wallpaper
+  file:
+    src: "/home/{{ user }}/.local/share/wallpapers/"
+    dest: "/home/{{ user }}/.local/share/bg"
+    owner: anton
+    group: wheel
+    state: link
