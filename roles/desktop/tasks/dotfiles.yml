@@ -38,11 +38,11 @@
     remote_src: yes
     dest: "/home/{{ user }}/"
     owner: "{{ user }}"
-    group: "{{ user }}"
+    group: wheel
     force: yes
     follow: yes
 
 - name: remove tmp dir
   file:
     path: "home/{{ user }}/.installtmp"
-    state: directory
+    state: absent

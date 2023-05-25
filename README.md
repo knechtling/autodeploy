@@ -1,6 +1,12 @@
 # autodeploy
 
-prerequisites
-=============
+prerequisites on ansible host
+=============================
 * ansible
-* ansible-core
+* ansible-galaxy collection install kewlfft.aur
+
+
+prerequisites on target
+=======================
+* openssh
+* python

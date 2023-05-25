@@ -6,9 +6,9 @@ dotfilesrepo: https://github.com/knechtling/dotfiles
 gitrepos:
   dwm: https://github.com/lukesmithxyz/dwm.git
   st: https://github.com/lukesmithxyz/st.git
-  dmenu: https://github.com/lukesmithxyz/st.git
+  dmenu: https://github.com/lukesmithxyz/dmenu.git
   dwmblocks: https://github.com/LukeSmithxyz/dwmblocks.git
 
-packages: "neovim,tmux,cowsay,xorg-server,xorg-xwininfo,xorg-xinit,polkit,ttf-linux-libertine,ttf-font-awesome,ttf-dejavu,ueberzug,bc,xcompmgr,xorg-xprop,arandr,dosfstools,libnotify,dunst,exfat-utils,sxiv,xwallpaper,ffmpeg,ffmpegthumbnailer,gnome-keyring,python-qdarkstyle,mpd,mpc,mpv,man-db,ncmpcpp,newsboat,noto-fonts,noto-fonts-emoji,ntfs-3g,wireplumber,pipewire-pulse,pulsemixer,maim,unclutter,unzip,lynx,xcape,xclip,xdotool,yt-dlp,zathura,zathura-pdf-mupdf,poppler,mediainfo,atool,fzf,bat,xorg-xbacklight,slock,socat,moreutils,zsh-autosuggestions,zsh-history-substring-search,feh"
+packages: "neovim,tmux,cowsay,xorg-server,xorg-xwininfo,xorg-xinit,polkit,ttf-linux-libertine,ttf-font-awesome,ttf-dejavu,ueberzug,bc,xcompmgr,xorg-xprop,arandr,dosfstools,libnotify,dunst,exfat-utils,sxiv,xwallpaper,ffmpeg,ffmpegthumbnailer,gnome-keyring,python-qdarkstyle,mpd,mpc,mpv,man-db,ncmpcpp,newsboat,noto-fonts,noto-fonts-emoji,ntfs-3g,wireplumber,pipewire-pulse,pulsemixer,maim,unclutter,unzip,lynx,xcape,xclip,xdotool,yt-dlp,zathura,zathura-pdf-mupdf,poppler,mediainfo,atool,fzf,bat,xorg-xbacklight,slock,socat,moreutils,zsh-autosuggestions,zsh-history-substring-search,feh,qutebrowser"
 
 aurpackages: "lf-git,gtk-theme-arc-gruvbox.git,arkenfox-user.js,dc-im,abook,zsh-fast-syntax-highlighting-git,task-spooler,simple-mtpfs,htop-vim,mutt-wizard-git,yay,autojump"
