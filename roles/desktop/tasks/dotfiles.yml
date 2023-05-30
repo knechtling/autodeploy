@@ -44,5 +44,26 @@
 
 - name: remove tmp dir
   file:
-    path: "home/{{ user }}/.installtmp"
+    path: "/home/{{ user }}/.installtmp"
     state: absent
+
+- name: create zsh cache dir
+  file:
+    path: "/home/{{ user }}/.cache/zsh"
+    state: directory
+
+- name: create repo dir
+  file:
+    path: "/home/{{ user }}/repos"
+    state: directory
+    owner: anton
+    group: wheel
+
+- name: clone additional repos
+  become: yes
+  become_user: anton
+  ansible.builtin.git:
+    repo: "{{ item.value }}"
+    dest: "/home/{{ user }}/.local/src/{{ item.key }}"
+    clone: yes
+  with_dict: "{{ additional_repos }}"

@@ -4,10 +4,14 @@ user: anton
 dotfilesrepo: https://github.com/knechtling/dotfiles
 
 gitrepos:
-  dwm: https://github.com/lukesmithxyz/dwm.git
-  st: https://github.com/lukesmithxyz/st.git
-  dmenu: https://github.com/lukesmithxyz/dmenu.git
-  dwmblocks: https://github.com/LukeSmithxyz/dwmblocks.git
+  dwm: https://github.com/knechtling/dwm.git
+  st: https://github.com/knechtling/st.git
+  dmenu: https://github.com/knechtling/dmenu.git
+  dwmblocks: https://github.com/knechtling/dwmblocks.git
+
+additional_repos:
+  autodeploy: https://github.com/knechtling/autodeploy
+  dotfiles: https://github.com/knechtling/dotfiles
 
 packages: "neovim,tmux,cowsay,xorg-server,xorg-xwininfo,xorg-xinit,polkit,ttf-linux-libertine,ttf-font-awesome,ttf-dejavu,ueberzug,bc,xcompmgr,xorg-xprop,arandr,dosfstools,libnotify,dunst,exfat-utils,sxiv,xwallpaper,ffmpeg,ffmpegthumbnailer,gnome-keyring,python-qdarkstyle,mpd,mpc,mpv,man-db,ncmpcpp,newsboat,noto-fonts,noto-fonts-emoji,ntfs-3g,wireplumber,pipewire-pulse,pulsemixer,maim,unclutter,unzip,lynx,xcape,xclip,xdotool,yt-dlp,zathura,zathura-pdf-mupdf,poppler,mediainfo,atool,fzf,bat,xorg-xbacklight,slock,socat,moreutils,zsh-autosuggestions,zsh-history-substring-search,feh,qutebrowser"
 
