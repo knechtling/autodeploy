@@ -1,0 +1,36 @@
+---
+
+- name: create swap subvolume
+  command: btrfs subvolume create /swap
+
+- name: create the swap file
+  command: swapon /swap/swapfile
+
+- name: activate the swap file
+  command: btrfs filesystem mkswapfile --size 4g --uuid clear /swap/swapfile"
+
+- name: add swapfile to fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "/swap/swapfile"
+    line: "/swap/swapfile none swap defaults 0 0"
+
+  - name: Check if 'resume' hook is already in /etc/mkinitcpio.conf
+  ansible.builtin.shell: >
+    grep "^HOOKS=" /etc/mkinitcpio.conf | grep -o "resume"
+  register: grep_resume
+  ignore_errors: yes
+  changed_when: false
+
+- name: Insert 'resume' hook after 'filesystems' in /etc/mkinitcpio.conf
+  ansible.builtin.replace:
+    path: /etc/mkinitcpio.conf
+    regexp: '^(HOOKS=.*filesystems)'
+    replace: '\1 resume'
+    backup: yes  # Creates a backup file before replacing.
+  when: grep_resume.stdout == ""
+  register: mkinitcpio_update
+
+- name: Rebuild initramfs with mkinitcpio
+  ansible.builtin.command: mkinitcpio -P
+  when: mkinitcpio_update.changed

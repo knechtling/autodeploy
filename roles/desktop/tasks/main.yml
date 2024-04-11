@@ -7,6 +7,7 @@
     update_cache: true
     upgrade: true
 
+- include_tasks: dotfiles.yml
 - include_tasks: pacman.yml
 - include_tasks: aur.yml
 
@@ -24,12 +25,24 @@
 
 - include_tasks: gitmakeinstall.yml
 
-- include_tasks: dotfiles.yml
-
 - name: link default wallpaper
   file:
     src: "/home/{{ user }}/.local/share/wallpapers/"
     dest: "/home/{{ user }}/.local/share/bg"
-    owner: anton
+    owner: "{{ user }}"
     group: wheel
     state: link
+
+- name: check if swap file exists
+  stat:
+    path: "/swap/swapfile"
+  register: swap_file_check
+
+- name: create swap file if it doesn't exist
+  include_tasks: create_swapfile.yml
+  become: true
+  when: not swap_file_check.stat.exists
+
+- name: Display a message after playbook execution
+  ansible.builtin.debug:
+    msg: "Playbook has finished executing. Remember to check the system."
