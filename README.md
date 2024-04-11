@@ -10,3 +10,4 @@ prerequisites on target
 =======================
 * openssh
 * python
+* git
