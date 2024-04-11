@@ -1,22 +1,22 @@
 ---
 
 - name: Ensure .tmp dir is empty
-  become: yes
-  become_user: anton
+  become: true
+  become_user: "{{ user }}"
   ansible.builtin.file:
     path: "/home/{{ user }}/.installtmp"
     state: absent
 
 - name: Create a .tmp directory
-  become: yes
-  become_user: anton
+  become: true
+  become_user: "{{ user }}"
   ansible.builtin.file:
     path: "/home/{{ user }}/.installtmp"
     state: directory
 
 - name: cloning dotfiles repo
-  become: yes
-  become_user: anton
+  become: true
+  become_user: "{{ user }}"
   ansible.builtin.git:
     repo: "{{ dotfilesrepo }}"
     dest: "/home/{{ user }}/.installtmp"
@@ -35,12 +35,11 @@
 - name: copying dotfiles into config dir
   copy:
     src: "/home/{{ user }}/.installtmp/"
-    remote_src: yes
+    remote_src: true
     dest: "/home/{{ user }}/"
     owner: "{{ user }}"
     group: wheel
-    force: yes
-    follow: yes
+
 
 - name: remove tmp dir
   file:
@@ -50,20 +49,39 @@
 - name: create zsh cache dir
   file:
     path: "/home/{{ user }}/.cache/zsh"
+    owner: "{{ user }}"
+    group: "wheel"
     state: directory
+
+- name: create symlinks for zprofile
+  file:
+    src: "/home/{{ user }}/.config/shell/profile"
+    dest: "/home/{{ user }}/.zprofile"
+    owner: "{{ user }}"
+    group: "wheel"
+    state: link
+
+- name: create symlinks for zshrc
+  file:
+    src: "/home/{{ user }}/.config/zsh/.zshrc"
+    dest: "/home/{{ user }}/.zshrc"
+    owner: "{{ user }}"
+    group: "wheel"
+    state: link
+
 
 - name: create repo dir
   file:
     path: "/home/{{ user }}/repos"
     state: directory
-    owner: anton
+    owner: "{{ user }}"
     group: wheel
 
 - name: clone additional repos
-  become: yes
-  become_user: anton
+  become: true
+  become_user: "{{ user }}"
   ansible.builtin.git:
     repo: "{{ item.value }}"
     dest: "/home/{{ user }}/.local/src/{{ item.key }}"
-    clone: yes
+    clone: true
   with_dict: "{{ additional_repos }}"
