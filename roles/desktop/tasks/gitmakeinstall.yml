@@ -2,11 +2,12 @@
 
 - name: "clone {{ item.value }}"
   become: yes
-  become_user: anton
+  become_user: "{{ user }}"
   ansible.builtin.git:
     repo: "{{ item.value }}"
     dest: "/home/{{ user }}/.local/src/{{ item.key }}"
     clone: yes
+    force: true
   with_dict: "{{ gitrepos }}"
 
 - name: "building {{ item.value }}"
