@@ -1,45 +1,50 @@
 ---
 
-- include_tasks: create_user.yml
-
-- name: system upgrade
+- name: Import Create_user.yml
+  ansible.builting.include_tasks: Create_user.yml
+- name: System upgrade
   community.general.pacman:
     update_cache: true
     upgrade: true
 
-- include_tasks: dotfiles.yml
-- include_tasks: pacman.yml
-- include_tasks: aur.yml
 
-- name: install packages
+- name: Import dotfiles.yml
+  ansible.builtin.include_tasks: dotfiles.yml
+- name: Import pacman.yml
+  ansible.builtin.include_tasks: pacman.yml
+- name: Import aur.yml
+  ansible.builtin.include_tasks: aur.yml
+
+- name: Install packages
   community.general.pacman:
     name: "{{ packages }}"
     state: present
 
-- name: install aur packages
+- name: Rnstall aur packages
   kewlfft.aur.aur:
     name: "{{ aurpackages }}"
     state: present
-  become: yes
+  become: true
   become_user: aur_builder
 
-- include_tasks: gitmakeinstall.yml
+- name: Import gitmakeinstall.yml
+  ansible.builtin.include_tasks: gitmakeinstall.yml
 
-- name: link default wallpaper
-  file:
+- name: Link default wallpaper
+  ansible.builtin.file:
     src: "/home/{{ user }}/.local/share/wallpapers/"
     dest: "/home/{{ user }}/.local/share/bg"
     owner: "{{ user }}"
     group: wheel
     state: link
 
-- name: check if swap file exists
-  stat:
+- name: Check if swap file exists
+  ansible.builting.stat:
     path: "/swap/swapfile"
   register: swap_file_check
 
-- name: create swap file if it doesn't exist
-  include_tasks: create_swapfile.yml
+- name: Create swap file if it doesn't exist
+  ansible.builting.include_tasks: create_swapfile.yml
   become: true
   when: not swap_file_check.stat.exists
 

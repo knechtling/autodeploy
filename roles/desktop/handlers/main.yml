@@ -1,0 +1,14 @@
+- name: Build_suckless
+  become: true
+  become_user: "{{ user }}"
+  ansible.builtin.shell: |
+    set -e
+    for dir in {{ gitrepos.keys() | map('quote') | join(' ') }}; do
+      echo "Building $dir..."
+      cd "/home/{{ user }}/.local/src/$dir"
+      make install
+    done
+
+
+- name: Rebuild initramfs
+  ansible.builtin.command: mkinitcpio -P

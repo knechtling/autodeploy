@@ -2,6 +2,8 @@
 user: anton
 
 dotfilesrepo: https://github.com/knechtling/dotfiles
+dotfilesbranch: desktop
+sucklessbranch: main
 
 gitrepos:
   dwm: https://github.com/knechtling/wm.git

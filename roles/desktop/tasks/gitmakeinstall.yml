@@ -1,29 +1,13 @@
 ---
 
-- name: "clone {{ item.value }}"
-  become: yes
+- name: "Clone or update {{ item.key }}"
+  become: true
   become_user: "{{ user }}"
   ansible.builtin.git:
     repo: "{{ item.value }}"
+    version: "{{ sucklessbranch }}"
     dest: "/home/{{ user }}/.local/src/{{ item.key }}"
-    clone: yes
-    force: true
-  with_dict: "{{ gitrepos }}"
-
-- name: "building {{ item.value }}"
-  ansible.builtin.shell:
-    cmd: make install
-    chdir: "/home/{{ user }}/.local/src/{{ item.key }}"
-  with_dict: "{{ gitrepos }}"
-
-
-# - name: clone https://github.com/LukeSmithxyz/dwm
-#   ansible.builtin.git:
-#     repo: https://github.com/LukeSmithxyz/dwm
-#     dest: /home/{{ user }}/.local/src/dwm
-#     clone: yes
-
-# - name: make https://github.com/LukeSmithxyz/dwm
-#   ansible.builtin.shell:
-#     cmd: make install
-#     chdir: /home/{{ user }}/.local/src/dwm
+    clone: true
+    update: true
+  loop: "{{ gitrepos | dict2items }}"
+  notify: "Build suckless"
