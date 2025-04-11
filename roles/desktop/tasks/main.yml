@@ -15,12 +15,26 @@
 - name: Import aur.yml
   ansible.builtin.include_tasks: aur.yml
 
-- name: Install system packages (pacman)
+- name: Update system
   community.general.pacman:
-    name: "{{ item }}"
+    update_cache: true
+    upgrade: true
+
+
+- name: Get list of installed packages
+  ansible.builtin.command: pacman -Qq
+  register: installed_pkgs
+  changed_when: false
+
+- name: Get packages that are not yet installed
+  ansible.builtin.set_fact:
+    missing_packages: "{{ packages | difference(installed_pkgs.stdout_lines) }}"
+
+- name: Install only missing packages
+  community.general.pacman:
+    name: "{{ missing_packages }}"
     state: present
-  loop: "{{ packages }}"
-  ignore_errors: true
+  when: missing_packages | length > 0
 
 - name: Install AUR packages
   kewlfft.aur.aur:
