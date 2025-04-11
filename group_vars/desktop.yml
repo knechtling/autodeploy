@@ -45,7 +45,6 @@ packages:
   - mpc
   - mpv
   - man-db
-  - ncmpcpp
   - newsboat
   - noto-fonts
   - noto-fonts-emoji
@@ -64,7 +63,6 @@ packages:
   - zathura-pdf-mupdf
   - poppler
   - mediainfo
-  - atool
   - fzf
   - bat
   - xorg-xbacklight
@@ -84,6 +82,7 @@ packages:
   - nmap
   - thunderbird
   - brightnessctl
+  - stow
 
 aurpackages:
   - zsh-fast-syntax-highlighting-git
@@ -96,3 +95,4 @@ aurpackages:
   - feishin-bin
   - tmux-plugin-manager
   - yt-dlp-drop-in
+  - xsettingsd
