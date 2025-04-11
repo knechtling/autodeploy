@@ -94,7 +94,7 @@ wayland:
   - pkg-config
 
 
-aurpackages:
+aur_packages:
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - zsh-history-substring-search
