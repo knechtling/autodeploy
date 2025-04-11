@@ -1,7 +1,7 @@
 ---
 
 - name: Import Create_user.yml
-  ansible.builting.include_tasks: Create_user.yml
+  ansible.builtin.include_tasks: Create_user.yml
 - name: System upgrade
   community.general.pacman:
     update_cache: true
@@ -39,12 +39,12 @@
     state: link
 
 - name: Check if swap file exists
-  ansible.builting.stat:
+  ansible.builtin.stat:
     path: "/swap/swapfile"
   register: swap_file_check
 
 - name: Create swap file if it doesn't exist
-  ansible.builting.include_tasks: create_swapfile.yml
+  ansible.builtin.include_tasks: create_swapfile.yml
   become: true
   when: not swap_file_check.stat.exists
 
