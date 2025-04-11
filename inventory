@@ -1,1 +1,2 @@
+[desktop]
 localhost ansible_connection=local
