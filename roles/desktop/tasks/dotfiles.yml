@@ -5,7 +5,7 @@
   ansible.builtin.git:
     repo: "{{ dotfilesrepo }}"
     version: "{{ dotfilesbranch }}"
-    dest: "/home/{{ user }}/.local/share/larbs/"
+    dest: "/home/{{ user }}/.local/share/larbs/dotfiles/"
     clone: true
 
 - name: Create zsh cache dir
