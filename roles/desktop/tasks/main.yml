@@ -15,16 +15,18 @@
 - name: Import aur.yml
   ansible.builtin.include_tasks: aur.yml
 
-- name: Install packages
+- name: Install system packages (pacman)
   community.general.pacman:
-    name: "{{ packages }}"
+    name: "{{ item }}"
     state: present
+  loop: "{{ packages }}"
   ignore_errors: true
 
-- name: Rnstall aur packages
+- name: Install AUR packages
   kewlfft.aur.aur:
-    name: "{{ aurpackages }}"
+    name: "{{ item }}"
     state: present
+  loop: "{{ aurpackages }}"
   become: true
   become_user: aur_builder
   ignore_errors: true
