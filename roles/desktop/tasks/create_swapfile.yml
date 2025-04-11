@@ -49,4 +49,4 @@
     replace: '\1 resume'
     backup: true
   when: grep_resume.stdout == ""
-  notify: Rebuild initramfs
+  notify: Rebuild_initramfs
