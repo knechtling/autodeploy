@@ -1,0 +1,43 @@
+
+- name: Update system
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+
+- name: Get list of installed packages
+  ansible.builtin.command: pacman -Qq
+  register: installed_pkgs
+  changed_when: false
+
+- name: Determine missing packages
+  ansible.builtin.set_fact:
+    missing_packages: "{{ packages | difference(installed_pkgs.stdout_lines) }}"
+
+- name: Show missing packages
+  ansible.builtin.debug:
+    msg: "Installing: {{ missing_packages }}"
+  when: missing_packages | length > 0
+
+- name: Install only missing packages
+  community.general.pacman:
+    name: "{{ missing_packages }}"
+    state: present
+  when: missing_packages | length > 0
+
+- name: Install yay
+  kewlfft.aur.aur:
+    name: "yay"
+    use: makepkg
+    state: present
+  become: true
+  become_user: aur_builder
+  ignore_errors: true
+
+- name: Install AUR packages
+  kewlfft.aur.aur:
+    name: "{{ aurpackages }}"
+    use: yay
+    state: present
+  become: true
+  become_user: aur_builder
+  ignore_errors: true
