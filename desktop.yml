@@ -2,6 +2,8 @@
 - name: configure desktop
   hosts: desktop
   roles:
-  - desktop
+  - user   # https://kubernetes.io/docs/concepts/services-networking/service/
   - ssh
+  - dotfiles
+  - suckless
   become: true
