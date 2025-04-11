@@ -3,4 +3,5 @@
   hosts: desktop
   roles:
   - desktop
+  - ssh
   become: true
