@@ -5,5 +5,7 @@
   - user   # https://kubernetes.io/docs/concepts/services-networking/service/
   - ssh
   - dotfiles
+  - pacman
+  - swap
   - suckless
   become: true
