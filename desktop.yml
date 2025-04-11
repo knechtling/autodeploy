@@ -2,10 +2,10 @@
 - name: configure desktop
   hosts: desktop
   roles:
-  - user   # https://kubernetes.io/docs/concepts/services-networking/service/
+  - user
   - ssh
-  - dotfiles
   - pacman
+  - dotfiles
   - swap
   - suckless
   become: true
