@@ -10,4 +10,4 @@
     clone: true
     update: true
   loop: "{{ gitrepos | dict2items }}"
-  notify: "Build suckless"
+  notify: "Build_suckless"
