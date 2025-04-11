@@ -1,16 +1,49 @@
 ---
 
-- name: create the user
-  user:
+- name: Create the user
+  ansible.builtin.user:
     name: "{{ user }}"
     shell: /bin/zsh
     group: wheel
-    append: yes
+    append: true
 
-- name: configure sudo rights for the user
-  shell: |
-    echo "%wheel ALL=(ALL:ALL) ALL" >/etc/sudoers.d/00-larbs-wheel-can-sudo
-    echo "%wheel ALL=(ALL:ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/pacman -S -u -y --config /etc/pacman.conf --,/usr/bin/pacman -S -y -u --config /etc/pacman.conf --" >/etc/sudoers.d/01-larbs-cmds-without-password
-    echo "Defaults editor=/usr/bin/nvim" >/etc/sudoers.d/02-larbs-visudo-editor
-    mkdir -p /etc/sysctl.d
-    echo "kernel.dmesg_restrict = 0" > /etc/sysctl.d/dmesg.conf
+- name: Allow wheel group to use sudo
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/00-larbs-wheel-can-sudo
+    content: "%wheel ALL=(ALL:ALL) ALL\n"
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Allow passwordless sudo for specific commands
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/01-larbs-cmds-without-password
+    content: |
+      %wheel ALL=(ALL:ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/pacman -S -u -y --config /etc/pacman.conf --,/usr/bin/pacman -S -y -u --config /etc/pacman.conf --
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Set default visudo editor to nvim
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/02-larbs-visudo-editor
+    content: "Defaults editor=/usr/bin/nvim\n"
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Ensure /etc/sysctl.d exists
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Allow unrestricted dmesg access
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/dmesg.conf
+    content: "kernel.dmesg_restrict = 0\n"
+    owner: root
+    group: root
+    mode: '0644'
