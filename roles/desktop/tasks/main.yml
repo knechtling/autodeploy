@@ -34,13 +34,13 @@
 - name: Import gitmakeinstall.yml
   ansible.builtin.include_tasks: gitmakeinstall.yml
 
-- name: Link default wallpaper
-  ansible.builtin.file:
-    src: "/home/{{ user }}/.local/share/wallpapers/"
-    dest: "/home/{{ user }}/.local/share/bg"
-    owner: "{{ user }}"
-    group: wheel
-    state: link
+# - name: Link default wallpaper
+#   ansible.builtin.file:
+#     src: "/home/{{ user }}/.local/share/wallpapers/"
+#     dest: "/home/{{ user }}/.local/share/bg"
+#     owner: "{{ user }}"
+#     group: wheel
+#     state: link
 
 - name: Check if swap file exists
   ansible.builtin.stat:
