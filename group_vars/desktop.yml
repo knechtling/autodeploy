@@ -56,7 +56,6 @@ packages:
   - maim
   - unclutter
   - unzip
-  - lynx
   - xcape
   - xclip
   - xdotool
@@ -72,8 +71,6 @@ packages:
   - slock
   - socat
   - moreutils
-  - zsh-autosuggestions
-  - zsh-history-substring-search
   - feh
   - firefox
   - ncdu
@@ -89,15 +86,11 @@ packages:
   - brightnessctl
 
 aurpackages:
-  - gtk-theme-arc-gruvbox.git
-  - arkenfox-user.js
-  - dc-im
-  - abook
   - zsh-fast-syntax-highlighting-git
+  - zsh-autosuggestions
+  - zsh-history-substring-search
   - task-spooler
   - simple-mtpfs
-  - htop-vim
-  - mutt-wizard-git
   - yay
   - autojump
   - feishin-bin
