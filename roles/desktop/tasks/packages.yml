@@ -33,11 +33,20 @@
   become_user: aur_builder
   ignore_errors: true
 
-- name: Install AUR packages
-  kewlfft.aur.aur:
-    name: "{{ aurpackages }}"
-    use: yay
+- name: Install only missing packages
+  community.general.pacman:
+    name: "{{ aur_packages }}"
+    executable: yay
     state: present
   become: true
   become_user: aur_builder
   ignore_errors: true
+
+# - name: Install AUR packages
+#   kewlfft.aur.aur:
+#     name: "{{ aurpackages }}"
+#     use: yay
+#     state: present
+#   become: true
+#   become_user: aur_builder
+#   ignore_errors: true
