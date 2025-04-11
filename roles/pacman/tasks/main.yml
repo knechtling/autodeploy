@@ -1,5 +1,5 @@
 - name: Install packages
-  ansible.builtin.include.task: install-packages.yml 
+  ansible.builtin.include.tasks: install-packages.yml 
 
 - name: Configure pacman
-  ansible.builtin.include.task: configue-pacman.yml 
+  ansible.builtin.include.tasks: configue-pacman.yml 
