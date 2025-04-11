@@ -7,7 +7,7 @@ sucklessbranch: main
 
 gitrepos:
   dwm: https://github.com/knechtling/wm.git
-  st: https://github.com/Lukesmithxyz/st
+  st: https://github.com/knechtling/st
   dmenu: https://github.com/Lukesmithxyz/dmenu.git
   dwmblocks: https://github.com/knechtling/dwmblocks.git
 
