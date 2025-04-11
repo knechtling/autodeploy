@@ -9,5 +9,6 @@
     dest: "/home/{{ user }}/.local/src/{{ item.key }}"
     clone: true
     update: true
+    force: true
   loop: "{{ gitrepos | dict2items }}"
   notify: "Build_suckless"
