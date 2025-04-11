@@ -17,6 +17,7 @@ additional_repos:
 
 packages:
   - neovim
+  - pacman
   - tmux
   - cowsay
   - xorg-server
@@ -83,6 +84,15 @@ packages:
   - thunderbird
   - brightnessctl
   - stow
+
+wayland:
+  - libinput
+  - wayland
+  - wlroots-git
+  - xkbcommon
+  - wayland-protocols
+  - pkg-config
+
 
 aurpackages:
   - zsh-fast-syntax-highlighting-git
