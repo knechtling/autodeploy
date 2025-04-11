@@ -1,7 +1,7 @@
 ---
 
 - name: Import Create_user.yml
-  ansible.builtin.include_tasks: Create_user.yml
+  ansible.builtin.include_tasks: create_user.yml
 - name: System upgrade
   community.general.pacman:
     update_cache: true
