@@ -6,6 +6,7 @@
     shell: /bin/zsh
     group: wheel
     append: true
+    create_home: true
 
 - name: Allow wheel group to use sudo
   ansible.builtin.copy:
