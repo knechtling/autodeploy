@@ -1,6 +1,4 @@
 - name: Build_suckless
-  become: true
-  become_user: "{{ user }}"
   ansible.builtin.shell: |
     set -e
     for dir in {{ gitrepos.keys() | map('quote') | join(' ') }}; do
