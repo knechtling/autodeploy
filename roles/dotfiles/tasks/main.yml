@@ -20,7 +20,7 @@
   become: true
   become_user: "{{ user }}"
   ansible.builtin.shell: |
-    stow -t "$HOME" */
+    stow -t "$HOME" .
   args:
     chdir: "/home/{{ user }}/.local/share/larbs/dotfiles"
   environment:
