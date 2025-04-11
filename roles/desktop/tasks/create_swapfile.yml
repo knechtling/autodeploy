@@ -31,7 +31,7 @@
     state: present
 
 - name: Set swappiness
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: vm.swappiness
     value: 60
     state: present
