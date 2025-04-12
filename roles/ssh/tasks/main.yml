@@ -1,3 +1,5 @@
+---
+
 - name: Set authorized keys
   ansible.posix.authorized_key:
     user: "{{ user }}"

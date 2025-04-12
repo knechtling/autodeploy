@@ -1,0 +1,14 @@
+---
+
+- name: "Clone or update {{ item.key }}"
+  become: true
+  become_user: "{{ user }}"
+  ansible.builtin.git:
+    repo: "{{ item.value }}"
+    version: "{{ sucklessbranch }}"
+    dest: "/home/{{ user }}/.local/src/{{ item.key }}"
+    clone: true
+    update: true
+    force: true
+  loop: "{{ gitrepos | dict2items }}"
+  notify: "Build_suckless"
