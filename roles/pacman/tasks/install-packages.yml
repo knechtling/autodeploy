@@ -18,6 +18,14 @@
     state: present
   when: missing_packages | length > 0
 
+- name: Ensure .ansible/tmp exists and is owned by aur_builder
+  ansible.builtin.file:
+    path: /home/aur_builder/.ansible/tmp
+    state: directory
+    owner: aur_builder
+    group: aur_builder
+    mode: '0700'
+
 - name: Install yay
   kewlfft.aur.aur:
     name: "yay"
