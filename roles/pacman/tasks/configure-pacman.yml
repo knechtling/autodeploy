@@ -30,9 +30,10 @@
 - name: Create the `aur_builder` user
   ansible.builtin.user:
     name: aur_builder
-    create_home: true
-    group: wheel
     shell: /bin/zsh
+    group: wheel
+    append: true
+    create_home: true
 
 - name: Allow the `aur_builder` user to run `sudo pacman` without a password
   ansible.builtin.lineinfile:
