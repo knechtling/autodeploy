@@ -26,7 +26,7 @@
   become: true
   become_user: aur_builder
 
-- name: Install only missing packages
+- name: Install aur packages
   community.general.pacman:
     name: "{{ aur_packages }}"
     executable: yay
