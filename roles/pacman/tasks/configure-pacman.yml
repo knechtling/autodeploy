@@ -32,6 +32,7 @@
     name: aur_builder
     create_home: true
     group: wheel
+    shell: /bin/zsh
 
 - name: Allow the `aur_builder` user to run `sudo pacman` without a password
   ansible.builtin.lineinfile:
