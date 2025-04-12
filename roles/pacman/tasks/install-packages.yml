@@ -23,7 +23,7 @@
     path: /home/aur_builder/.ansible/tmp
     state: directory
     owner: aur_builder
-    group: aur_builder
+    group: wheel
     mode: '0700'
 
 - name: Install yay
