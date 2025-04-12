@@ -25,4 +25,4 @@
     line: 'PubkeyAuthentication yes'
     create: true
     backup: true
-    notify: Restart_sshd
+  notify: Restart_sshd
