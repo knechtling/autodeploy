@@ -16,6 +16,7 @@ additional_repos:
   dotfiles: https://github.com/knechtling/dotfiles
 
 packages:
+  - zsh
   - neovim
   - pacman
   - tmux
