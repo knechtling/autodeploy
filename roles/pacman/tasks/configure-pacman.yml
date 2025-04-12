@@ -46,7 +46,7 @@
 - name: Create .ansible/cache for aur_builder
   become: true
   ansible.builtin.file:
-    path: /home/aur_builder/.ansible/cache
+    path: /home/aur_builder/cache
     state: directory
     owner: aur_builder
     group: wheel
