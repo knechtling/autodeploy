@@ -1,5 +1,13 @@
-
 - name: Install wayland packages
   community.general.pacman:
     name: "{{ wayland_pkgs }}"
     state: present
+
+- name: Clone dwl sources
+  become: true
+  become_user: "{{ user }}"
+  ansible.builtin.git:
+    repo: "https://codeberg.org/janetski/dwl.git"
+    dest: "/home/{{ user }}/.local/src/dwl"
+    clone: true
+    update: true
