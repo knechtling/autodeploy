@@ -3,3 +3,9 @@
     user: "{{ user }}"
     state: present
     key: "{{ lookup('file', 'authorized_keys') }}"
+
+- name: Set root authorized keys
+  ansible.posix.authorized_key:
+    user: "root"
+    state: present
+    key: "{{ lookup('file', 'authorized_keys') }}"
