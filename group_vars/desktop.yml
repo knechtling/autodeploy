@@ -87,7 +87,7 @@ packages:
   - stow
   - yajl    # json library needed for dwm IPC patch
 
-wayland:
+wayland_pkgs:
   - libinput
   - wayland
   - wlroots-git
