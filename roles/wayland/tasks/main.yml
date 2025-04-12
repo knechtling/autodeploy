@@ -1,0 +1,5 @@
+
+- name: Install wayland packages
+  community.general.pacman:
+    name: "{{ wayland_pkgs }}"
+    state: present
