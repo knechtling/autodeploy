@@ -4,8 +4,25 @@
     state: present
     key: "{{ lookup('file', 'authorized_keys') }}"
 
+- name: Ensure root has a .ssh directory
+  ansible.builtin.file:
+    path: /root/.ssh
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+
 - name: Set root authorized keys
   ansible.posix.authorized_key:
     user: "root"
     state: present
     key: "{{ lookup('file', 'authorized_keys') }}"
+
+- name: Ensure PubkeyAuthentication is enabled
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+    create: true
+    backup: true
+    notify: Restart_sshd
