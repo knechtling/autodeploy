@@ -26,6 +26,8 @@
   become: true
   become_user: aur_builder
   ignore_errors: true
+  vars:
+  ansible_remote_tmp: /home/aur_builder/.ansible/tmp
 
 - name: Install only missing packages
   community.general.pacman:
