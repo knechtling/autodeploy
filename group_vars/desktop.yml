@@ -90,7 +90,7 @@ packages:
 wayland_pkgs:
   - libinput
   - wayland
-  - wlroots-git
+  - wlroots
   - xkbcommon
   - wayland-protocols
   - pkg-config
