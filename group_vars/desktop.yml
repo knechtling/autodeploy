@@ -91,7 +91,7 @@ wayland_pkgs:
   - libinput
   - wayland
   - wlroots
-  - xkbcommon
+  - libxkbcommon
   - wayland-protocols
   - pkg-config
 
