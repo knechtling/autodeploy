@@ -11,4 +11,12 @@
     update: true
     force: true
   loop: "{{ gitrepos | dict2items }}"
-  notify: "Build_suckless"
+
+- name: Build suckless
+  ansible.builtin.shell: |
+    set -e
+    for dir in {{ gitrepos.keys() | map('quote') | join(' ') }}; do
+      echo "Building $dir..."
+      cd "/home/{{ user }}/.local/src/$dir"
+      make install
+    done
