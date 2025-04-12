@@ -2,4 +2,4 @@
   ansible.builtin.include_tasks: install-packages.yml 
 
 - name: Configure pacman
-  ansible.builtin.include_tasks: configue-pacman.yml 
+  ansible.builtin.include_tasks: configure-pacman.yml 
