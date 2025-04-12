@@ -1,0 +1,15 @@
+- hosts: localhost
+  connection: local
+  vars:
+    aur_packages:
+      - cava
+      - btop
+    ansible_remote_tmp: /home/aur_builder/.ansible/tmp
+  tasks:
+    - name: Install AUR packages with yay
+      community.general.pacman:
+        name: "{{ aur_packages }}"
+        executable: yay
+        state: present
+      become: true
+      become_user: aur_builder
