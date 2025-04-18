@@ -88,24 +88,26 @@ packages:
   - yajl    # json library needed for dwm IPC patch
 
 wayland_pkgs:
+# Basics: these are needed to compile dwl
   - libinput
   - wayland
   - wlroots
   - libxkbcommon
   - wayland-protocols
   - pkg-config
+# Extra features: notification daemon, wallpaper setter etc...
   - mako
   - swaybg
 
 
 aur_packages:
+# zsh plugins
+  - autojump
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - zsh-history-substring-search
   - task-spooler
   - simple-mtpfs
-  - yay
-  - autojump
   - feishin-bin
   - tmux-plugin-manager
   - yt-dlp-drop-in
