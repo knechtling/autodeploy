@@ -94,6 +94,8 @@ wayland_pkgs:
   - libxkbcommon
   - wayland-protocols
   - pkg-config
+  - mako
+  - swaybg
 
 
 aur_packages:
