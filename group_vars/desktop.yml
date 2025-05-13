@@ -108,7 +108,7 @@ aur_packages:
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - zsh-history-substring-search
-  - task-spooler
+  - task-spooler-git
   - simple-mtpfs
   - feishin-bin
   - tmux-plugin-manager
