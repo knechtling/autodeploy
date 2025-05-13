@@ -99,6 +99,7 @@ wayland_pkgs:
   - mako
   - swaybg
   - fcft
+  - tllist
 
 
 aur_packages:
