@@ -11,3 +11,8 @@
     dest: "/home/{{ user }}/.local/src/dwl"
     clone: true
     update: true
+
+- name: Build dwl
+  community.general.make:
+    chdir: "/home/{{ user }}/.local/src/dwl"
+    target: install
