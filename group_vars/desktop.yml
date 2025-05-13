@@ -98,6 +98,7 @@ wayland_pkgs:
 # Extra features: notification daemon, wallpaper setter etc...
   - mako
   - swaybg
+  - fcft
 
 
 aur_packages:
