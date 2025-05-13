@@ -13,10 +13,8 @@
   loop: "{{ gitrepos | dict2items }}"
 
 - name: Build suckless
-  ansible.builtin.shell: |
-    set -e
-    for dir in {{ gitrepos.keys() | map('quote') | join(' ') }}; do
-      echo "Building $dir..."
-      cd "/home/{{ user }}/.local/src/$dir"
-      make install
-    done
+  community.general.make:
+    chdir: "/home/{{ user }}/.local/src/{{ item.key }}"
+    target: install
+  become: true
+  loop: "{{ gitrepos | dict2items }}"
