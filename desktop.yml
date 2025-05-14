@@ -6,5 +6,6 @@
   - ssh
   - pacman
   - dotfiles
-  - swap
-  - suckless
+  # - swap
+  # - suckless
+  - wayland
