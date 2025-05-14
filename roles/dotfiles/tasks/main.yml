@@ -6,6 +6,7 @@
     repo: "{{ dotfilesrepo }}"
     version: "{{ dotfilesbranch }}"
     dest: "/home/{{ user }}/.local/share/larbs/dotfiles/"
+    force: true
     clone: true
 
 - name: Create zsh cache dir
