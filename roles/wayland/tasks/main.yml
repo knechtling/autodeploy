@@ -3,16 +3,20 @@
     name: "{{ wayland_pkgs }}"
     state: present
 
-- name: Clone dwl sources
+- name: "Clone or update {{ item.key }}"
   become: true
   become_user: "{{ user }}"
   ansible.builtin.git:
-    repo: "https://codeberg.org/janetski/dwl.git"
-    dest: "/home/{{ user }}/.local/src/dwl"
+    repo: "{{ item.value }}"
+    dest: "/home/{{ user }}/.local/src/{{ item.key }}"
     clone: true
     update: true
+    force: true
+  loop: "{{ waylandrepos | dict2items }}"
 
-- name: Build dwl
+- name: Make install waylandrepos
   community.general.make:
-    chdir: "/home/{{ user }}/.local/src/dwl"
+    chdir: "/home/{{ user }}/.local/src/{{ item.key }}"
     target: install
+  become: true
+  loop: "{{ waylandrepos | dict2items }}"
