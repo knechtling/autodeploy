@@ -2,10 +2,10 @@
 - name: configure desktop
   hosts: desktop
   roles:
-  - user
-  - ssh
-  - pacman
-  - dotfiles
-  # - swap
+  # - user
+  # - ssh
+  # - pacman
+  # - dotfiles
+  - swap
   # - suckless
-  - wayland
+  # - wayland

@@ -1,7 +1,9 @@
 - name: Create swap subvolume
-  ansible.builtin.command: btrfs subvolume create /swap
-  args:
-    creates: /swap
+  ansible.community.btrfs_subvolume:
+    name: /@swap
+    filesystem_label: SWAP
+    snapshot_conflict: skip
+  become: true
 
 - name: Ensure swap file exists
   ansible.builtin.command: >
@@ -9,6 +11,7 @@
   args:
     creates: /swap/swapfile
   register: swap_file_create
+  become: true
 
 - name: Set permissions on swap file
   ansible.builtin.file:
