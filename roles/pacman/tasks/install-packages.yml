@@ -19,6 +19,13 @@
   become: true
   when: missing_packages | length > 0
 
+- name: Clean up /tmp to free space
+  ansible.builtin.shell: |
+    find /tmp -type f -name "*.tar.xz" -delete || true
+    find /tmp -type d -name "tmp.*" -exec rm -rf {} + || true
+  become: true
+  ignore_errors: true
+
 - name: Install yay
   kewlfft.aur.aur:
     name: "yay"
@@ -27,14 +34,28 @@
   become: true
   become_user: aur_builder
   ignore_errors: true
+  register: yay_install_result
 
-- name: Install aur packages
+- name: Show yay installation result
+  ansible.builtin.debug:
+    msg: "yay installation: {{ 'SUCCESS' if yay_install_result.rc == 0 else 'FAILED - ' + (yay_install_result.msg | default('Unknown error')) }}"
+  when: yay_install_result is defined
+
+- name: Install aur packages one by one
   kewlfft.aur.aur:
-    name: "{{ aur_packages }}"
+    name: "{{ item }}"
     state: present
   become: true
   become_user: aur_builder
   ignore_errors: true
+  register: aur_install_results
+  loop: "{{ aur_packages }}"
+
+- name: Show AUR package installation results
+  ansible.builtin.debug:
+    msg: "{{ item.item }}: {{ 'SUCCESS' if item.rc == 0 else 'FAILED - ' + (item.msg | default('Unknown error') | regex_replace('\n', ' ')) }}"
+  loop: "{{ aur_install_results.results }}"
+  when: aur_install_results is defined
 
 # - name: Install AUR packages
 #   kewlfft.aur.aur:

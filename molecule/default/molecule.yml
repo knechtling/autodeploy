@@ -11,6 +11,10 @@ platforms:
     # Alternative options:
     # box: generic/arch
     # box: roboxes/arch
+    memory: 2048
+    cpus: 2
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
 provisioner:
   name: ansible
   env:
