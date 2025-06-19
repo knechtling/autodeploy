@@ -1,0 +1,11 @@
+---
+- name: Setup host groups
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Add host to desktop group
+      add_host:
+        name: "{{ inventory_hostname }}"
+        groups: desktop
+
+- import_playbook: ../../desktop.yml

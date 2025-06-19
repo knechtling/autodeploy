@@ -7,6 +7,7 @@
     group: wheel
     append: true
     create_home: true
+  become: true
 
 - name: Allow wheel group to use sudo
   ansible.builtin.copy:
@@ -15,6 +16,7 @@
     owner: root
     group: root
     mode: '0440'
+  become: true
 
 - name: Allow passwordless sudo for specific commands
   ansible.builtin.copy:
@@ -23,6 +25,7 @@
     owner: root
     group: root
     mode: '0440'
+  become: true
 
 - name: Set default visudo editor to nvim
   ansible.builtin.copy:
@@ -31,6 +34,7 @@
     owner: root
     group: root
     mode: '0440'
+  become: true
 
 - name: Ensure /etc/sysctl.d exists
   ansible.builtin.file:
@@ -39,6 +43,7 @@
     owner: root
     group: root
     mode: '0755'
+  become: true
 
 - name: Allow unrestricted dmesg access
   ansible.builtin.copy:
@@ -47,3 +52,4 @@
     owner: root
     group: root
     mode: '0644'
+  become: true

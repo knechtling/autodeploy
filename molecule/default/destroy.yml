@@ -1,0 +1,33 @@
+---
+- name: Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Check if Vagrantfile exists
+      ansible.builtin.stat:
+        path: "{{ molecule_ephemeral_directory }}/Vagrantfile"
+      register: vagrantfile_stat
+
+    - name: Destroy vagrant instance
+      ansible.builtin.shell:
+        cmd: vagrant destroy -f
+        chdir: "{{ molecule_ephemeral_directory }}"
+      when: vagrantfile_stat.stat.exists
+      register: vagrant_destroy
+      failed_when: false
+
+    - name: Remove Vagrantfile
+      ansible.builtin.file:
+        path: "{{ molecule_ephemeral_directory }}/Vagrantfile"
+        state: absent
+      when: vagrantfile_stat.stat.exists
+
+    - name: Clear instance config
+      ansible.builtin.copy:
+        content: |
+          # Molecule managed
+          []
+        dest: "{{ molecule_instance_config }}"
+        mode: 0600

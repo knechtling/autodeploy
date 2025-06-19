@@ -1,0 +1,21 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python
+      raw: |
+        if ! command -v python3 &> /dev/null; then
+          pacman -Sy --noconfirm python
+        fi
+      become: true
+      changed_when: false
+
+    - name: Wait for Python to be available
+      wait_for:
+        path: /usr/bin/python3
+        timeout: 30
+
+    - name: Gather facts now that Python is available
+      setup:
+

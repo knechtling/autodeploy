@@ -16,6 +16,7 @@
   community.general.pacman:
     name: "{{ missing_packages }}"
     state: present
+  become: true
   when: missing_packages | length > 0
 
 - name: Install yay

@@ -1,10 +1,20 @@
 ---
 
+- name: Ensure user has a .ssh directory
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ user }}"
+    group: wheel
+  become: true
+
 - name: Set authorized keys
   ansible.posix.authorized_key:
     user: "{{ user }}"
     state: present
     key: "{{ lookup('file', 'authorized_keys') }}"
+  become: true
 
 - name: Ensure root has a .ssh directory
   ansible.builtin.file:
@@ -13,12 +23,14 @@
     mode: '0700'
     owner: root
     group: root
+  become: true
 
 - name: Set root authorized keys
   ansible.posix.authorized_key:
     user: "root"
     state: present
     key: "{{ lookup('file', 'authorized_keys') }}"
+  become: true
 
 - name: Ensure PubkeyAuthentication is enabled
   ansible.builtin.lineinfile:
@@ -27,4 +39,5 @@
     line: 'PubkeyAuthentication yes'
     create: true
     backup: true
+  become: true
   notify: Restart_sshd

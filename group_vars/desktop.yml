@@ -94,6 +94,16 @@ packages:
   - lazygit
   - timeshift
   - arch-install-scripts
+  - zsh
+  - fakeroot
+  - binutils
+  - make
+  - gcc
+  - debugedit
+  - automake
+  - pkg-config
+  - pango
+  - freetype2
 
 wayland_pkgs:
 # Basics: these are needed to compile dwl

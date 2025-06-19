@@ -1,7 +1,15 @@
+- name: Update keyring first
+  community.general.pacman:
+    name: archlinux-keyring
+    state: latest
+    update_cache: true
+  become: true
+
 - name: Update_system
   community.general.pacman:
     update_cache: true
     upgrade: true
+  become: true
 
 - name: Enable pacman colourised output and verbose package lists
   ansible.builtin.replace:
@@ -11,6 +19,7 @@
   with_items:
     - { regexp: '^#Color$', replace: 'Color' }
     - { regexp: '^#VerbosePkgLists$', replace: 'VerbosePkgLists' }
+  become: true
 
 - name: Enable repositories
   ansible.builtin.replace:
@@ -20,12 +29,14 @@
   with_items: '{{ pacman.repos }}'
   notify: Update pacman cache
   when: pacman.repos is defined
+  become: true
 
 - name: Ignore 'modified' group
   ansible.builtin.replace:
     path: /etc/pacman.conf
     regexp: '^#IgnoreGroup =$'
     replace: 'IgnoreGroup = modified'
+  become: true
 
 - name: Create the `aur_builder` user
   ansible.builtin.user:
@@ -34,6 +45,7 @@
     group: wheel
     append: true
     create_home: true
+  become: true
 
 - name: Allow the `aur_builder` user to run `sudo pacman` without a password
   ansible.builtin.lineinfile:
@@ -44,3 +56,4 @@
     owner: root
     group: root
     validate: 'visudo -cf %s'
+  become: true

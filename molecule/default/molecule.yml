@@ -1,0 +1,22 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+platforms:
+  - name: test-archlinux
+    box: archlinux/archlinux  # Official Arch box
+    # Alternative options:
+    # box: generic/arch
+    # box: roboxes/arch
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_CONFIG: ../../ansible.cfg   # reuse project config
+  playbooks:
+    prepare: prepare.yml
+    converge: converge.yml
+verifier:
+  name: ansible

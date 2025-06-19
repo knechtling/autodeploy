@@ -1,5 +1,13 @@
+- name: Ensure Python is installed
+  raw: |
+    if ! command -v python3 &> /dev/null; then
+      pacman -Sy --noconfirm python
+    fi
+  become: true
+  changed_when: false
+
 - name: Create swap subvolume
-  ansible.community.btrfs_subvolume:
+  community.general.btrfs_subvolume:
     name: /@swap
     filesystem_label: SWAP
     snapshot_conflict: skip
