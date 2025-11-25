@@ -17,7 +17,7 @@ dwl_use_custom_config: true
 dwl_config_source: "/home/{{ user }}/dotfiles/.config/dwl/config.h"
 
 # wlroots package source (repo|aur)
-wlroots_pkg: wlroots0.19
+wlroots_pkg: wlroots0.18
 wlroots_pkg_source: repo
 wlroots_repo_packages: "{{ [wlroots_pkg] if wlroots_pkg_source == 'repo' else [] }}"
 wlroots_aur_packages: "{{ [wlroots_pkg] if wlroots_pkg_source == 'aur' else [] }}"
