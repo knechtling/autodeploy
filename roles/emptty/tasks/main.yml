@@ -5,14 +5,17 @@
     state: present
   become: true
 
-- name: Ensure emptty PAM configuration is present and correct
-  block:
-    - name: Check if /etc/pam.d/emptty exists
-      ansible.builtin.stat:
-        path: /etc/pam.d/emptty
-      register: emptty_pam
+- name: Ensure emptty PAM configuration matches Arch default (no custom file)
+  ansible.builtin.file:
+    path: /etc/pam.d/emptty
+    state: absent
+  become: true
+  when: not (emptty_manage_pam | default(false))
+  tags: ['pam', 'emptty']
 
-    - name: Install correct /etc/pam.d/emptty
+- name: Optionally manage emptty PAM configuration
+  block:
+    - name: Install /etc/pam.d/emptty (system-local-login)
       ansible.builtin.copy:
         dest: /etc/pam.d/emptty
         owner: root
@@ -27,13 +30,6 @@
       become: true
   when: emptty_manage_pam | default(false)
   tags: ['pam', 'emptty']
-
-- name: Remove custom emptty PAM file when management disabled
-  ansible.builtin.file:
-    path: /etc/pam.d/emptty
-    state: absent
-  become: true
-  when: not (emptty_manage_pam | default(false))
 
 - name: Create emptty config directory
   ansible.builtin.file:

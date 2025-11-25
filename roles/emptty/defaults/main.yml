@@ -1,3 +1,4 @@
 ---
 # Manage /etc/pam.d/emptty explicitly. Arch defaults work without this file.
 emptty_manage_pam: false
+emptty_session_type: tty
