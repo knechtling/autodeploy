@@ -7,7 +7,7 @@ dotfiles_repo: https://github.com/knechtling/dotfiles
 dotfiles_branch: main
 
 # DWL configuration
-dwl_repo: https://github.com/djpohly/dwl
+dwl_repo: https://github.com/knechtling/dwl
 dwl_branch: main
 dwl_src_dir: "/home/{{ user }}/.local/src/dwl"
 dwl_install_prefix: /usr/local
