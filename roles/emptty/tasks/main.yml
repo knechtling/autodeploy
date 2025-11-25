@@ -78,3 +78,30 @@
     group: "{{ user }}"
     mode: "0600"
   become: true
+
+- name: Ensure emptty systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/emptty.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Set explicit emptty config path via systemd drop-in
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/emptty.service.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |-
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/emptty --config /home/{{ user }}/.config/emptty.conf
+  notify: restart emptty
+  become: true
+
+- name: Reload systemd to apply emptty override
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
