@@ -1,0 +1,10 @@
+---
+- name: Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Destroy molecule instances with Vagrant
+      community.general.vagrant:
+        state: destroyed
+        cwd: "{{ molecule_scenario_directory }}"

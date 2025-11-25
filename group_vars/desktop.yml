@@ -2,7 +2,7 @@
 user: anton
 
 dotfilesrepo: https://github.com/knechtling/dotfiles
-dotfilesbranch: desktop
+dotfilesbranch: wayland
 sucklessbranch: master
 
 gitrepos:
@@ -14,6 +14,11 @@ gitrepos:
 additional_repos:
   autodeploy: https://github.com/knechtling/autodeploy
   dotfiles: https://github.com/knechtling/dotfiles
+
+waylandrepos:
+  dwl: https://github.com/knechtling/dwl.git
+  slstatus: https://git.suckless.org/slstatus
+  dwlmsg: https://codeberg.org/notchoc/dwlmsg.git
 
 packages:
   - zsh
@@ -86,6 +91,19 @@ packages:
   - brightnessctl
   - stow
   - yajl    # json library needed for dwm IPC patch
+  - lazygit
+  - timeshift
+  - arch-install-scripts
+  - zsh
+  - fakeroot
+  - binutils
+  - make
+  - gcc
+  - debugedit
+  - automake
+  - pkg-config
+  - pango
+  - freetype2
 
 wayland_pkgs:
 # Basics: these are needed to compile dwl
@@ -100,6 +118,19 @@ wayland_pkgs:
 # Extra features: notification daemon, wallpaper setter etc...
   - mako
   - swaybg
+  - fcft
+  - tllist
+  - waylock 
+  - wlroots
+  - libxcb
+  - xorg-xwayland
+  - wmenu
+  - foot
+  - wdisplays
+  - wl-clipboard
+  - cliphist
+  - wlr-which-key
+  - xorg-xhost
 
 
 aur_packages:
@@ -108,7 +139,7 @@ aur_packages:
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - zsh-history-substring-search
-  - task-spooler
+  - task-spooler-git
   - simple-mtpfs
   - feishin-bin
   - tmux-plugin-manager

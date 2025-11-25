@@ -1,0 +1,26 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+platforms:
+  - name: test-archlinux
+    box: archlinux/archlinux  # Official Arch box
+    # Alternative options:
+    # box: generic/arch
+    # box: roboxes/arch
+    memory: 2048
+    cpus: 2
+    provider_raw_config_args:
+      - "storage :file, :size => '20G'"
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_CONFIG: ../../ansible.cfg   # reuse project config
+  playbooks:
+    prepare: prepare.yml
+    converge: converge.yml
+verifier:
+  name: ansible

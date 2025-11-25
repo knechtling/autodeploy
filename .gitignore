@@ -1,0 +1,10 @@
+venv*
+.docsible*
+*backup*
+
+# Vagrant runtime files
+.vagrant/
+
+# Log files
+*.log
+*_changes_*.log

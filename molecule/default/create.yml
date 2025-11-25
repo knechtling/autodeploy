@@ -1,0 +1,51 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Create Vagrantfile for test-archlinux
+      ansible.builtin.copy:
+        content: |
+          Vagrant.configure("2") do |config|
+            config.vm.box = "roboxes/arch"
+            config.vm.hostname = "test-archlinux"
+            config.vm.provider "libvirt" do |v|
+              v.memory = 2048
+              v.cpus = 2
+            end
+          end
+        dest: "{{ molecule_ephemeral_directory }}/Vagrantfile"
+        mode: 0644
+
+    - name: Create vagrant instance
+      ansible.builtin.shell:
+        cmd: vagrant up
+        chdir: "{{ molecule_ephemeral_directory }}"
+      register: vagrant_up
+      changed_when: "'already running' not in vagrant_up.stdout"
+
+    - name: Get SSH config
+      ansible.builtin.shell:
+        cmd: vagrant ssh-config
+        chdir: "{{ molecule_ephemeral_directory }}"
+      register: ssh_config
+
+    - name: Parse SSH config
+      ansible.builtin.set_fact:
+        ssh_host: "{{ ssh_config.stdout | regex_search('HostName ([0-9.]+)', '\\1') | first }}"
+        ssh_port: "{{ ssh_config.stdout | regex_search('Port ([0-9]+)', '\\1') | first }}"
+        ssh_user: "{{ ssh_config.stdout | regex_search('User ([a-zA-Z0-9_]+)', '\\1') | first }}"
+        ssh_key: "{{ ssh_config.stdout | regex_search('IdentityFile ([^\n]+)', '\\1') | first }}"
+
+    - name: Create instance config
+      ansible.builtin.copy:
+        content: |
+          - instance: test-archlinux
+            address: "{{ ssh_host }}"
+            user: "{{ ssh_user }}"
+            port: "{{ ssh_port }}"
+            identity_file: "{{ ssh_key }}"
+        dest: "{{ molecule_instance_config }}"
+        mode: 0600

@@ -4,10 +4,18 @@
   vars:
     hosttype: desktop
   roles:
+  - pacman
   - user
   - ssh
+<<<<<<< HEAD
   - pacman
   - wayland
   - dotfiles
   - swap
   - emptty
+=======
+  - dotfiles
+  # - swap
+  - suckless
+  # - wayland
+>>>>>>> f64c2803f64f84406ec62ea3348a9e43f70f720e

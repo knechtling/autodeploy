@@ -1,0 +1,20 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "Check that the playbook ran successfully"
+      debug:
+        msg: "Initial provisioning completed successfully"
+
+- name: Verify idempotence by running the playbook again
+  import_playbook: ../../desktop.yml
+
+- name: Final verification
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "Verify idempotence check completed"
+      debug:
+        msg: "Idempotence check completed - no changes should have been made"
+

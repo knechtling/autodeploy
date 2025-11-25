@@ -13,10 +13,30 @@
   loop: "{{ gitrepos | dict2items }}"
 
 - name: Build suckless
-  ansible.builtin.shell: |
-    set -e
-    for dir in {{ gitrepos.keys() | map('quote') | join(' ') }}; do
-      echo "Building $dir..."
-      cd "/home/{{ user }}/.local/src/$dir"
-      make install
-    done
+  community.general.make:
+    chdir: "/home/{{ user }}/.local/src/{{ item.key }}"
+    target: install
+  become: true
+  loop: "{{ gitrepos | dict2items }}"
+  ignore_errors: true
+  register: suckless_build_results
+
+- name: Show suckless build results
+  ansible.builtin.debug:
+    msg: "{{ item.item.key }}: {{ 'SUCCESS' if item.rc == 0 else 'FAILED - ' + (item.msg | default('Unknown error')) }}"
+  loop: "{{ suckless_build_results.results }}"
+  when: suckless_build_results is defined
+
+- name: Create summary of build results
+  ansible.builtin.set_fact:
+    successful_builds: "{{ suckless_build_results.results | selectattr('rc', 'equalto', 0) | map(attribute='item.key') | list }}"
+    failed_builds: "{{ suckless_build_results.results | rejectattr('rc', 'equalto', 0) | map(attribute='item.key') | list }}"
+  when: suckless_build_results is defined
+
+- name: Display build summary
+  ansible.builtin.debug:
+    msg: |
+      Suckless Build Summary:
+      ✅ Successfully built: {{ successful_builds | join(', ') if successful_builds else 'None' }}
+      ❌ Failed to build: {{ failed_builds | join(', ') if failed_builds else 'None' }}
+  when: suckless_build_results is defined

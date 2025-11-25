@@ -6,6 +6,7 @@
     repo: "{{ dotfilesrepo }}"
     version: "{{ dotfilesbranch }}"
     dest: "/home/{{ user }}/.local/share/larbs/dotfiles/"
+    force: true
     clone: true
 
 - name: Create zsh cache dir
@@ -15,6 +16,8 @@
     owner: "{{ user }}"
     group: "wheel"
     state: directory
+    recurse: true
+  become: true
 
 - name: Stow dotfiles into home directory
   become: true
