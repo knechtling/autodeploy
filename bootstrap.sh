@@ -13,7 +13,7 @@ AUTODEPLOY_BRANCH="${AUTODEPLOY_BRANCH:-${BRANCH:-master}}"
 DWL_BRANCH="${DWL_BRANCH:-${BRANCH:-main}}"
 DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/${REPO_USER}/dotfiles}"
 AUTODEPLOY_REPO="${AUTODEPLOY_REPO:-https://github.com/${REPO_USER}/autodeploy}"
-DWL_REPO="${DWL_REPO:-https://github.com/djpohly/dwl}"
+DWL_REPO="${DWL_REPO:-https://github.com/knechtling/dwl}"
 
 # Colors
 RED='\033[0;31m'
