@@ -109,20 +109,20 @@ clone_repos() {
     # Clone dotfiles
     if [ -d "$HOME/dotfiles/.git" ]; then
         info "Dotfiles exist, pulling latest..."
-        cd "$HOME/dotfiles" && git pull 2>&1 | tee -a "$LOGFILE"
+        cd "$HOME/dotfiles" && git checkout "$DOTFILES_BRANCH" && git pull 2>&1 | tee -a "$LOGFILE"
     else
-        info "Cloning dotfiles..."
-        git clone "$DOTFILES_REPO" "$HOME/dotfiles" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone dotfiles"
+        info "Cloning dotfiles (branch: $DOTFILES_BRANCH)..."
+        git clone -b "$DOTFILES_BRANCH" "$DOTFILES_REPO" "$HOME/dotfiles" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone dotfiles"
     fi
     
     # Clone autodeploy
     mkdir -p "$HOME/projects"
     if [ -d "$HOME/projects/autodeploy/.git" ]; then
         info "Autodeploy exists, pulling latest..."
-        cd "$HOME/projects/autodeploy" && git pull 2>&1 | tee -a "$LOGFILE"
+        cd "$HOME/projects/autodeploy" && git checkout "$AUTODEPLOY_BRANCH" && git pull 2>&1 | tee -a "$LOGFILE"
     else
-        info "Cloning autodeploy..."
-        git clone "$AUTODEPLOY_REPO" "$HOME/projects/autodeploy" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone autodeploy"
+        info "Cloning autodeploy (branch: $AUTODEPLOY_BRANCH)..."
+        git clone -b "$AUTODEPLOY_BRANCH" "$AUTODEPLOY_REPO" "$HOME/projects/autodeploy" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone autodeploy"
     fi
     
     success "Repositories ready"
