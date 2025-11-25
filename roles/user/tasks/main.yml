@@ -48,8 +48,8 @@
   ansible.builtin.file:
     path: /etc/shadow
     owner: root
-    group: shadow
-    mode: '0640'
+    group: root
+    mode: '0600'
   become: true
 
 - name: Sync passwd and shadow databases

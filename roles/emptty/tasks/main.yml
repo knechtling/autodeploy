@@ -25,7 +25,15 @@
           password    include     system-local-login
           session     include     system-local-login
       become: true
+  when: emptty_manage_pam | default(false)
   tags: ['pam', 'emptty']
+
+- name: Remove custom emptty PAM file when management disabled
+  ansible.builtin.file:
+    path: /etc/pam.d/emptty
+    state: absent
+  become: true
+  when: not (emptty_manage_pam | default(false))
 
 - name: Create emptty config directory
   ansible.builtin.file:
