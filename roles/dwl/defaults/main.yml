@@ -18,7 +18,7 @@ dwl_build_deps_base:
 
 # slstatus build settings
 slstatus_repo: https://github.com/knechtling/slstatus.git
-slstatus_branch: main
+slstatus_branch: master
 slstatus_src_dir: "/home/{{ user }}/.local/src/slstatus"
 slstatus_install_prefix: /usr/local
 slstatus_build_deps:
