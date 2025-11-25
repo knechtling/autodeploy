@@ -1,2 +1,8 @@
 [desktop]
 localhost ansible_connection=local
+
+[laptop]
+localhost ansible_connection=local
+
+[vm]
+localhost ansible_connection=local
