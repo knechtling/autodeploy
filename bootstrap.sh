@@ -7,10 +7,13 @@ set -e
 
 # Configuration
 REPO_USER="${REPO_USER:-knechtling}"
+BRANCH="${BRANCH:-}"
+DOTFILES_BRANCH="${DOTFILES_BRANCH:-${BRANCH:-wayland}}"
+AUTODEPLOY_BRANCH="${AUTODEPLOY_BRANCH:-${BRANCH:-master}}"
+DWL_BRANCH="${DWL_BRANCH:-${BRANCH:-main}}"
 DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/${REPO_USER}/dotfiles}"
 AUTODEPLOY_REPO="${AUTODEPLOY_REPO:-https://github.com/${REPO_USER}/autodeploy}"
-DOTFILES_BRANCH="${DOTFILES_BRANCH:-wayland}"
-AUTODEPLOY_BRANCH="${AUTODEPLOY_BRANCH:-master}"
+DWL_REPO="${DWL_REPO:-https://github.com/djpohly/dwl}"
 
 # Colors
 RED='\033[0;31m'
@@ -110,24 +113,34 @@ install_ansible_galaxy() {
 clone_repos() {
   log "Cloning repositories..."
 
-  # Clone dotfiles
-  if [ -d "$HOME/dotfiles/.git" ]; then
-    info "Dotfiles exist, pulling latest..."
-    cd "$HOME/dotfiles" && git checkout "$DOTFILES_BRANCH" && git pull 2>&1 | tee -a "$LOGFILE"
-  else
-    info "Cloning dotfiles (branch: $DOTFILES_BRANCH)..."
-    git clone -b "$DOTFILES_BRANCH" "$DOTFILES_REPO" "$HOME/dotfiles" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone dotfiles"
-  fi
+  sync_repo() {
+    local repo_url="$1"
+    local branch="$2"
+    local dest="$3"
 
-  # Clone autodeploy
+    if [ -d "$dest/.git" ]; then
+      info "Updating $(basename "$dest") (branch: $branch)..."
+      local current_remote
+      current_remote=$(git -C "$dest" remote get-url origin 2>/dev/null || true)
+      if [ "$current_remote" != "$repo_url" ] && [ -n "$current_remote" ]; then
+        warn "Remote mismatch for $(basename "$dest"), resetting to $repo_url"
+        git -C "$dest" remote set-url origin "$repo_url" 2>&1 | tee -a "$LOGFILE"
+      fi
+      git -C "$dest" fetch --all 2>&1 | tee -a "$LOGFILE"
+      git -C "$dest" checkout "$branch" 2>&1 | tee -a "$LOGFILE"
+      git -C "$dest" pull --ff-only origin "$branch" 2>&1 | tee -a "$LOGFILE"
+    elif [ -d "$dest" ]; then
+      error "$dest exists but is not a git repository. Move it out of the way and retry."
+    else
+      info "Cloning $(basename "$dest") (branch: $branch)..."
+      git clone -b "$branch" "$repo_url" "$dest" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone $(basename "$dest")"
+    fi
+  }
+
+  sync_repo "$DOTFILES_REPO" "$DOTFILES_BRANCH" "$HOME/dotfiles"
+
   mkdir -p "$HOME/projects"
-  if [ -d "$HOME/projects/autodeploy/.git" ]; then
-    info "Autodeploy exists, pulling latest..."
-    cd "$HOME/projects/autodeploy" && git checkout "$AUTODEPLOY_BRANCH" && git pull 2>&1 | tee -a "$LOGFILE"
-  else
-    info "Cloning autodeploy (branch: $AUTODEPLOY_BRANCH)..."
-    git clone -b "$AUTODEPLOY_BRANCH" "$AUTODEPLOY_REPO" "$HOME/projects/autodeploy" 2>&1 | tee -a "$LOGFILE" || error "Failed to clone autodeploy"
-  fi
+  sync_repo "$AUTODEPLOY_REPO" "$AUTODEPLOY_BRANCH" "$HOME/projects/autodeploy"
 
   success "Repositories ready"
 }
@@ -144,11 +157,17 @@ run_ansible() {
   [ -f "$playbook" ] || playbook="desktop.yml"
 
   info "Running playbook: $playbook"
+  info "Branches: dotfiles=$DOTFILES_BRANCH autodeploy=$AUTODEPLOY_BRANCH dwl=$DWL_BRANCH"
   ansible-playbook "$playbook" \
     -i inventory \
     --ask-become-pass \
     -e "user=$USER" \
     -e "hosttype=$HOSTTYPE" \
+    -e "dotfiles_branch=$DOTFILES_BRANCH" \
+    -e "dotfiles_repo=$DOTFILES_REPO" \
+    -e "autodeploy_branch=$AUTODEPLOY_BRANCH" \
+    -e "dwl_branch=$DWL_BRANCH" \
+    -e "dwl_repo=$DWL_REPO" \
     2>&1 | tee -a "$LOGFILE" || error "Ansible failed. Check $LOGFILE"
 
   success "Ansible deployment complete"

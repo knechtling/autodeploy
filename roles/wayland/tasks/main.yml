@@ -1,22 +1,28 @@
-- name: Install wayland packages
+---
+- name: Install wayland packages (deprecated role wrapper)
   community.general.pacman:
-    name: "{{ wayland_pkgs }}"
+    name: "{{ (wayland_core_packages | default([], true)) + (wayland_tooling | default([], true)) }}"
     state: present
+  become: true
+  when: (wayland_core_packages | default([], true) | length) > 0 or (wayland_tooling | default([], true) | length) > 0
 
-- name: "Clone or update {{ item.key }}"
+- name: Clone optional Wayland repos
   become: true
   become_user: "{{ user }}"
   ansible.builtin.git:
-    repo: "{{ item.value }}"
+    repo: "{{ item.value.repo }}"
+    version: "{{ item.value.version | default('main') }}"
     dest: "/home/{{ user }}/.local/src/{{ item.key }}"
     clone: true
     update: true
     force: true
-  loop: "{{ waylandrepos | dict2items }}"
+  loop: "{{ (wayland_repos | default({})) | dict2items }}"
+  when: wayland_repos is defined
 
-- name: Make install waylandrepos
+- name: Build optional Wayland repos
   community.general.make:
     chdir: "/home/{{ user }}/.local/src/{{ item.key }}"
     target: install
   become: true
-  loop: "{{ waylandrepos | dict2items }}"
+  loop: "{{ (wayland_repos | default({})) | dict2items }}"
+  when: wayland_repos is defined

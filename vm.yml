@@ -4,9 +4,9 @@
   vars:
     hosttype: vm
   roles:
+  - pacman
   - user
   - ssh
-  - pacman
-  - wayland
   - dotfiles
+  - dwl
   - emptty

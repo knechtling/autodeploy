@@ -4,7 +4,9 @@
   ansible.builtin.user:
     name: "{{ user }}"
     shell: /bin/zsh
-    group: wheel
+    groups:
+      - wheel
+      - seat
     append: true
     create_home: true
   become: true

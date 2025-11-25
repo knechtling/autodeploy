@@ -8,9 +8,10 @@ TTY_NUMBER=7
 PRINT_ISSUE=true
 
 # Default user (for autologin)
+{% set session_name = dwl_session_name | default('dwl') %}
 {% if emptty_autologin | default(false) %}
 AUTOLOGIN=true
-AUTOLOGIN_SESSION=dwl
+AUTOLOGIN_SESSION={{ session_name }}
 DEFAULT_USER={{ user }}
 {% else %}
 AUTOLOGIN=false

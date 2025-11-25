@@ -2,41 +2,53 @@
 # Common variables for all hosts
 user: anton
 
-dotfilesrepo: https://github.com/knechtling/dotfiles
-dotfilesbranch: main
-sucklessbranch: master
+# Dotfiles + branches (overridable via extra vars or environment)
+dotfiles_repo: https://github.com/knechtling/dotfiles
+dotfiles_branch: main
 
 # DWL configuration
-dwl_repo: https://codeberg.org/janetski/dwl.git
+dwl_repo: https://github.com/djpohly/dwl
 dwl_branch: main
 dwl_src_dir: "/home/{{ user }}/.local/src/dwl"
+dwl_install_prefix: /usr/local
+dwl_launcher_path: "/home/{{ user }}/.local/bin/dwl-session"
+dwl_session_name: dwl
 dwl_use_custom_config: true
+dwl_config_source: "/home/{{ user }}/dotfiles/.config/dwl/config.h"
 
 # Base packages for all systems
 base_packages:
+  - base-devel
+  - git
+  - stow
   - zsh
   - neovim
   - tmux
-  - git
-  - stow
-  - base-devel
-  - cowsay
+  - python
   - polkit
+  - cowsay
+  - networkmanager
+  - openssh
 
-# Wayland base (all systems)
-wayland_base_packages:
+# Wayland core (no X11)
+wayland_core_packages:
   - wayland
   - wlroots
+  - wayland-protocols
   - libinput
   - libxkbcommon
-  - wayland-protocols
-  - pkg-config
+  - seatd
+  - pkgconf
   - fcft
   - tllist
-  - xorg-xwayland
+  - xdg-desktop-portal-wlr
+
+# Wayland userland
+wayland_tooling:
   - foot
-  - wmenu
-  - bemenu
+  - waybar
+  - bemenu-wayland
+  - wofi
   - mako
   - swaybg
   - waylock
@@ -48,21 +60,6 @@ wayland_base_packages:
   - kanshi
   - wlr-randr
   - wtype
-  - xdg-desktop-portal-wlr
-
-# Wayland packages list
-wayland_pkgs:
-  - libinput
-  - wayland
-  - wlroots
-  - libxkbcommon
-  - wayland-protocols
-  - pkg-config
-  - fcft
-  - tllist
-  - xorg-xwayland
-  - mako
-  - swaybg
 
 # Audio (all systems)
 audio_packages:
@@ -109,3 +106,11 @@ aur_base:
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - tmux-plugin-manager
+
+# Host-specific package hooks (keep lists)
+host_packages: []
+host_aur_packages: []
+
+# Aggregate lists used by pacman role
+packages: "{{ base_packages + wayland_core_packages + wayland_tooling + audio_packages + font_packages + common_apps + (host_packages | default([])) }}"
+aur_packages: "{{ aur_base + (host_aur_packages | default([])) }}"

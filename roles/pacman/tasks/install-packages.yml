@@ -5,7 +5,7 @@
 
 - name: Determine missing packages
   ansible.builtin.set_fact:
-    missing_packages: "{{ packages | difference(installed_pkgs.stdout_lines) }}"
+    missing_packages: "{{ (packages | default([], true)) | difference(installed_pkgs.stdout_lines) }}"
 
 - name: Show missing packages
   ansible.builtin.debug:
@@ -18,6 +18,22 @@
     state: present
   become: true
   when: missing_packages | length > 0
+
+- name: Ensure NetworkManager is enabled
+  ansible.builtin.systemd:
+    name: NetworkManager.service
+    enabled: true
+    state: started
+  become: true
+  when: "'networkmanager' in (packages | default([]))"
+
+- name: Ensure sshd is enabled
+  ansible.builtin.systemd:
+    name: sshd.service
+    enabled: true
+    state: started
+  become: true
+  when: "'openssh' in (packages | default([]))"
 
 - name: Clean up /tmp to free space
   ansible.builtin.shell: |
@@ -49,7 +65,7 @@
   become_user: aur_builder
   ignore_errors: true
   register: aur_install_results
-  loop: "{{ aur_packages }}"
+  loop: "{{ aur_packages | default([], true) }}"
 
 - name: Show AUR package installation results
   ansible.builtin.debug:

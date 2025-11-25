@@ -1,13 +1,13 @@
 ---
-- name: Cloning dotfiles repo
+- name: Ensure dotfiles repository is present
+  ansible.builtin.git:
+    repo: "{{ dotfiles_repo }}"
+    version: "{{ dotfiles_branch }}"
+    dest: "/home/{{ user }}/dotfiles"
+    update: true
+    force: true
   become: true
   become_user: "{{ user }}"
-  ansible.builtin.git:
-    repo: "{{ dotfilesrepo }}"
-    version: "{{ dotfilesbranch }}"
-    dest: "/home/{{ user }}/.local/share/larbs/dotfiles/"
-    force: true
-    clone: true
 
 - name: Create zsh cache dir
   ansible.builtin.file:
@@ -19,12 +19,26 @@
     recurse: true
   become: true
 
+- name: Remove legacy X11 startup files
+  ansible.builtin.file:
+    path: "/home/{{ user }}/{{ item }}"
+    state: absent
+  loop:
+    - .xinitrc
+    - .Xresources
+    - .xprofile
+    - .xsession
+    - .xserverrc
+    - .config/X11
+  become: true
+  become_user: "{{ user }}"
+
 - name: Stow dotfiles into home directory
   become: true
   become_user: "{{ user }}"
   ansible.builtin.shell: |
     stow -t "$HOME" --dotfiles .
   args:
-    chdir: "/home/{{ user }}/.local/share/larbs/dotfiles"
+    chdir: "/home/{{ user }}/dotfiles"
   environment:
     HOME: "/home/{{ user }}"

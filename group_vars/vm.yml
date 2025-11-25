@@ -1,17 +1,12 @@
 ---
 # VM-specific variables
 hosttype: vm
+dotfiles_branch: wayland
 
-# Network interface (common for VMs)
-net_interface: enp0s3  # VirtualBox default
-# Alternatives: ens3 (KVM), ens33 (VMware)
-
-# VM-specific packages (minimal)
-vm_packages:
+host_packages:
   - firefox
 
-# VM-specific AUR (minimal)
-vm_aur: []
+host_aur_packages: []
 
 # Emptty configuration
 emptty_enabled: true

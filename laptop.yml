@@ -1,8 +1,8 @@
 ---
-- name: configure desktop
-  hosts: desktop
+- name: configure laptop
+  hosts: laptop
   vars:
-    hosttype: desktop
+    hosttype: laptop
   roles:
     - pacman
     - user

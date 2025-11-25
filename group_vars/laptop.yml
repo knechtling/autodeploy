@@ -1,18 +1,24 @@
 ---
-user: anton
+dotfiles_branch: wayland
 
-dotfilesrepo: https://github.com/knechtling/dotfiles
+host_packages:
+  - arch-install-scripts
+  - brightnessctl
+  - dosfstools
+  - exfatprogs
+  - gnome-keyring
+  - lazygit
+  - mediainfo
+  - newsboat
+  - nextcloud-client
+  - ntfs-3g
+  - qutebrowser
+  - thunderbird
 
-gitrepos:
-  dwm: https://github.com/knechtling/wm.git
-  st: https://github.com/Lukesmithxyz/st
-  dmenu: https://github.com/Lukesmithxyz/dmenu.git
-  dwmblocks: https://github.com/knechtling/dwmblocks.git
-
-additional_repos:
-  autodeploy: https://github.com/knechtling/autodeploy
-  dotfiles: https://github.com/knechtling/dotfiles
-
-packages: "neovim,tmux,cowsay,xorg-server,xorg-xwininfo,xorg-xinit,polkit,ttf-linux-libertine,ttf-font-awesome,ttf-dejavu,ueberzug,bc,xcompmgr,xorg-xprop,arandr,dosfstools,libnotify,dunst,exfat-utils,sxiv,xwallpaper,ffmpeg,ffmpegthumbnailer,gnome-keyring,python-qdarkstyle,mpd,mpc,mpv,man-db,ncmpcpp,newsboat,noto-fonts,noto-fonts-emoji,ntfs-3g,wireplumber,pipewire-pulse,pulsemixer,maim,unclutter,unzip,lynx,xcape,xclip,xdotool,yt-dlp,zathura,zathura-pdf-mupdf,poppler,mediainfo,atool,fzf,bat,xorg-xbacklight,slock,socat,moreutils,zsh-autosuggestions,zsh-history-substring-search,feh,firefox,ncdu,mathjax,bitwarden,ytfzf,shellcheck,rsync,qutebrowser,nextcloud-client,nmap,thunderbird, brightnessctl"
-
-aurpackages: "lf-git,gtk-theme-arc-gruvbox.git,arkenfox-user.js,dc-im,abook,zsh-fast-syntax-highlighting-git,task-spooler,simple-mtpfs,htop-vim,mutt-wizard-git,yay,autojump,feishin-bin,tmux-plugin-manager,yt-dlp-drop-in, batsignal"
+host_aur_packages:
+  - batsignal
+  - feishin-bin
+  - lf-git
+  - simple-mtpfs
+  - task-spooler-git
+  - yt-dlp-drop-in

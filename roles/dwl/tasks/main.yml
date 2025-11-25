@@ -1,0 +1,118 @@
+---
+- name: Ensure dwl build dependencies are installed
+  community.general.pacman:
+    name: "{{ dwl_build_deps }}"
+    state: present
+  become: true
+
+- name: Enable seatd service for Wayland session permissions
+  ansible.builtin.systemd:
+    name: seatd.service
+    enabled: true
+    state: started
+  become: true
+
+- name: Ensure source directory exists
+  ansible.builtin.file:
+    path: "{{ dwl_src_dir }}"
+    state: directory
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0755'
+    recurse: true
+  become: true
+
+- name: Clone or update dwl repository
+  ansible.builtin.git:
+    repo: "{{ dwl_repo }}"
+    dest: "{{ dwl_src_dir }}"
+    version: "{{ dwl_branch }}"
+    force: true
+    update: true
+  become: true
+  become_user: "{{ user }}"
+
+- name: Check for custom dwl config
+  ansible.builtin.stat:
+    path: "{{ dwl_config_source }}"
+  register: dwl_config
+  become: true
+  become_user: "{{ user }}"
+
+- name: Copy custom config.h when available
+  ansible.builtin.copy:
+    src: "{{ dwl_config_source }}"
+    dest: "{{ dwl_src_dir }}/config.h"
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0644'
+  when:
+    - dwl_use_custom_config | default(false)
+    - dwl_config.stat.exists
+  become: true
+  become_user: "{{ user }}"
+
+- name: Warn when custom dwl config is missing
+  ansible.builtin.debug:
+    msg: "dwl_use_custom_config enabled but {{ dwl_config_source }} not found; using repository defaults"
+  when:
+    - dwl_use_custom_config | default(false)
+    - not dwl_config.stat.exists
+
+- name: Build and install dwl
+  community.general.make:
+    chdir: "{{ dwl_src_dir }}"
+    params:
+      PREFIX: "{{ dwl_install_prefix }}"
+    target: install
+  become: true
+
+- name: Ensure local bin exists
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/bin"
+    state: directory
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0755'
+  become: true
+
+- name: Ensure dwl log directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/share"
+    state: directory
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0755'
+  become: true
+
+- name: Install dwl-session launcher
+  ansible.builtin.copy:
+    dest: "{{ dwl_launcher_path }}"
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0755'
+    content: |
+      #!/bin/sh
+      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+      export MOZ_ENABLE_WAYLAND=1
+      export QT_QPA_PLATFORM=wayland
+      export XDG_SESSION_TYPE=wayland
+      export XDG_CURRENT_DESKTOP={{ dwl_session_name }}
+      export XDG_SESSION_DESKTOP={{ dwl_session_name }}
+      exec dbus-run-session -- dwl >>"$HOME/.local/share/dwl.log" 2>&1
+  become: true
+
+- name: Install wayland session desktop entry
+  ansible.builtin.copy:
+    dest: /usr/share/wayland-sessions/{{ dwl_session_name }}.desktop
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Desktop Entry]
+      Name={{ dwl_session_name }}
+      Comment=Dynamic window manager for Wayland
+      Exec={{ dwl_launcher_path }}
+      Type=Application
+      DesktopNames={{ dwl_session_name }}
+  become: true

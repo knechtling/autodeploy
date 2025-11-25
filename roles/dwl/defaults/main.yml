@@ -1,0 +1,12 @@
+---
+dwl_build_deps:
+  - base-devel
+  - pkgconf
+  - wlroots
+  - wayland
+  - wayland-protocols
+  - libinput
+  - libxkbcommon
+  - seatd
+  - fcft
+  - tllist
