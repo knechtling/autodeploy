@@ -9,6 +9,15 @@
     state: present
   become: true
 
+- name: Ensure pkg-config symlink for versioned wlroots
+  ansible.builtin.file:
+    src: "{{ wlroots_pc_file }}"
+    dest: /usr/lib/pkgconfig/wlroots.pc
+    state: link
+    force: true
+  become: true
+  when: wlroots_version | length > 0
+
 - name: Enable seatd service for Wayland session permissions
   ansible.builtin.systemd:
     name: seatd.service
@@ -70,6 +79,8 @@
       PREFIX: "{{ dwl_install_prefix }}"
     target: install
   become: true
+  environment:
+    PKG_CONFIG_PATH: "{{ wlroots_pc_dir }}:/usr/lib/pkgconfig"
 
 - name: Ensure local bin exists
   ansible.builtin.file:

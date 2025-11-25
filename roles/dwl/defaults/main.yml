@@ -1,6 +1,9 @@
 ---
-wlroots_pkg: "{{ wlroots_pkg | default('wlroots') }}"
+wlroots_pkg: "{{ wlroots_pkg | default('wlroots0.19') }}"
 wlroots_pkg_source: "{{ wlroots_pkg_source | default('repo') }}"
+wlroots_version: "{{ (wlroots_pkg | regex_search('0\\.\\d+')) | default('') }}"
+wlroots_pc_dir: "{{ '/usr/lib/wlroots-' + wlroots_version + '/pkgconfig' if wlroots_version else '/usr/lib/pkgconfig' }}"
+wlroots_pc_file: "{{ wlroots_pc_dir + '/wlroots-' + wlroots_version + '.pc' if wlroots_version else '/usr/lib/pkgconfig/wlroots.pc' }}"
 
 dwl_build_deps_base:
   - base-devel
