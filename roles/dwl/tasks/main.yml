@@ -118,6 +118,15 @@
   become: true
 
 - name: Install wayland session desktop entry
+  ansible.builtin.file:
+    path: /usr/share/wayland-sessions
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install wayland session desktop entry
   ansible.builtin.copy:
     dest: /usr/share/wayland-sessions/{{ dwl_session_name }}.desktop
     owner: root
