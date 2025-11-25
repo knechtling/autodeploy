@@ -52,6 +52,11 @@
     mode: '0640'
   become: true
 
+- name: Sync passwd and shadow databases
+  ansible.builtin.command: pwconv
+  become: true
+  changed_when: false
+
 - name: Ensure /etc/sysctl.d exists
   ansible.builtin.file:
     path: /etc/sysctl.d
