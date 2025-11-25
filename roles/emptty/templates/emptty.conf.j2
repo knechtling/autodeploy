@@ -1,39 +1,5 @@
 # emptty configuration
-# See: man emptty
-
-# TTY to use
-TTY_NUMBER=7
-
-# Print PAM errors to terminal
-PRINT_ISSUE=true
-
-# Default user (for autologin)
-{% set session_name = dwl_session_name | default('dwl') %}
-{% if emptty_autologin | default(false) %}
-AUTOLOGIN=true
-AUTOLOGIN_SESSION={{ session_name }}
-DEFAULT_USER={{ user }}
-{% else %}
+# Minimal defaults; autologin disabled
 AUTOLOGIN=false
-{% endif %}
-
-# Logging
-LOGGING=rotate
-LOGGING_FILE=/var/log/emptty/{{ user }}.log
-
-# Hide information on screen
-HIDE_ENTER_LOGIN=false
-HIDE_ENTER_PASSWORD=false
-
-# Session selection
-ENABLE_NUMLOCK=true
-
-# Allow dynamic motd
-DYNAMIC_MOTD=true
-MOTD=/etc/emptty/motd
-
-# Desktop environment selection
-XINITRC_LAUNCH=false
-
-# Session type (helps pam_systemd/logind)
-SESSION_TYPE={{ emptty_session_type }}
+DEFAULT_USER=
+AUTOLOGIN_SESSION=

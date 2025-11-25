@@ -5,67 +5,76 @@
     state: present
   become: true
 
-- name: Ensure emptty PAM configuration matches Arch default (no custom file)
-  ansible.builtin.file:
-    path: /etc/pam.d/emptty
-    state: absent
-  become: true
-  when: not (emptty_manage_pam | default(false))
-  tags: ['pam', 'emptty']
-
-- name: Optionally manage emptty PAM configuration
-  block:
-    - name: Install /etc/pam.d/emptty (system-local-login)
-      ansible.builtin.copy:
-        dest: /etc/pam.d/emptty
-        owner: root
-        group: root
-        mode: "0644"
-        content: |
-          #%PAM-1.0
-          auth        include     system-local-login
-          account     include     system-local-login
-          password    include     system-local-login
-          session     include     system-local-login
-      become: true
-  when: emptty_manage_pam | default(false)
-  tags: ['pam', 'emptty']
-
-- name: Create emptty config directory
+- name: Ensure /etc/emptty exists
   ansible.builtin.file:
     path: /etc/emptty
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
   become: true
 
-- name: Configure emptty
+- name: Write /etc/emptty/conf (autologin disabled)
   ansible.builtin.template:
     src: emptty.conf.j2
     dest: /etc/emptty/conf
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   become: true
-  notify: restart emptty
 
-- name: Disable other display managers
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: false
-    state: stopped
+- name: Ensure /tmp/emptty exists with correct permissions
+  ansible.builtin.file:
+    path: /tmp/emptty
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
   become: true
-  loop:
-    - gdm.service
-    - sddm.service
-    - lightdm.service
-  failed_when: false
-  ignore_errors: true
 
-- name: Enable emptty service
-  ansible.builtin.systemd:
-    name: emptty.service
-    enabled: true
+- name: Remove stale emptty retry files
+  ansible.builtin.find:
+    paths: /tmp/emptty
+    file_type: any
+  register: emptty_tmp_files
   become: true
-  when: emptty_enabled | default(true)
+
+- name: Clean /tmp/emptty
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ emptty_tmp_files.files }}"
+  when: emptty_tmp_files.matched | default(0, true) | int > 0
+  become: true
+
+- name: Ensure ~/.config exists
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.config"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: "0755"
+  become: true
+
+- name: Remove incorrect emptty config directory
+  ansible.builtin.stat:
+    path: "/home/{{ user }}/.config/emptty"
+  register: emptty_config_dir
+  become: true
+
+- name: Delete ~/.config/emptty when it is a directory
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.config/emptty"
+    state: absent
+  when: emptty_config_dir.stat.isdir | default(false)
+  become: true
+
+- name: Write minimal ~/.config/emptty.conf
+  ansible.builtin.copy:
+    dest: "/home/{{ user }}/.config/emptty.conf"
+    content: |-
+      # emptty user configuration (optional overrides)
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: "0600"
+  become: true
