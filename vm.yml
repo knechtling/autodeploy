@@ -1,13 +1,12 @@
 ---
-- name: configure desktop
-  hosts: desktop
+- name: configure vm
+  hosts: vm
   vars:
-    hosttype: desktop
+    hosttype: vm
   roles:
   - user
   - ssh
   - pacman
   - wayland
   - dotfiles
-  - swap
   - emptty

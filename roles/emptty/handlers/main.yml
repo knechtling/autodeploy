@@ -1,0 +1,6 @@
+---
+- name: restart emptty
+  ansible.builtin.systemd:
+    name: emptty.service
+    state: restarted
+  become: true

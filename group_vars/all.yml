@@ -1,0 +1,111 @@
+---
+# Common variables for all hosts
+user: anton
+
+dotfilesrepo: https://github.com/knechtling/dotfiles
+dotfilesbranch: main
+sucklessbranch: master
+
+# DWL configuration
+dwl_repo: https://codeberg.org/janetski/dwl.git
+dwl_branch: main
+dwl_src_dir: "/home/{{ user }}/.local/src/dwl"
+dwl_use_custom_config: true
+
+# Base packages for all systems
+base_packages:
+  - zsh
+  - neovim
+  - tmux
+  - git
+  - stow
+  - base-devel
+  - cowsay
+  - polkit
+
+# Wayland base (all systems)
+wayland_base_packages:
+  - wayland
+  - wlroots
+  - libinput
+  - libxkbcommon
+  - wayland-protocols
+  - pkg-config
+  - fcft
+  - tllist
+  - xorg-xwayland
+  - foot
+  - wmenu
+  - bemenu
+  - mako
+  - swaybg
+  - waylock
+  - grim
+  - slurp
+  - wl-clipboard
+  - cliphist
+  - wf-recorder
+  - kanshi
+  - wlr-randr
+  - wtype
+  - xdg-desktop-portal-wlr
+
+# Wayland packages list
+wayland_pkgs:
+  - libinput
+  - wayland
+  - wlroots
+  - libxkbcommon
+  - wayland-protocols
+  - pkg-config
+  - fcft
+  - tllist
+  - xorg-xwayland
+  - mako
+  - swaybg
+
+# Audio (all systems)
+audio_packages:
+  - pipewire
+  - wireplumber
+  - pipewire-pulse
+  - pipewire-alsa
+  - pulsemixer
+
+# Fonts (all systems)
+font_packages:
+  - ttf-dejavu
+  - ttf-liberation
+  - noto-fonts
+  - noto-fonts-emoji
+  - ttf-font-awesome
+  - ttf-linux-libertine
+
+# Common applications
+common_apps:
+  - firefox
+  - mpv
+  - imv
+  - zathura
+  - zathura-pdf-mupdf
+  - fzf
+  - bat
+  - htop
+  - rsync
+  - unzip
+  - ffmpeg
+  - ffmpegthumbnailer
+  - man-db
+  - socat
+  - moreutils
+  - yt-dlp
+  - ncdu
+  - shellcheck
+  - yajl
+
+# AUR packages (all systems)
+aur_base:
+  - autojump
+  - zsh-fast-syntax-highlighting-git
+  - zsh-autosuggestions
+  - tmux-plugin-manager

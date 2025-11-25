@@ -1,0 +1,45 @@
+---
+- name: Install emptty
+  community.general.pacman:
+    name: emptty
+    state: present
+  become: true
+
+- name: Create emptty config directory
+  ansible.builtin.file:
+    path: /etc/emptty
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Configure emptty
+  ansible.builtin.template:
+    src: emptty.conf.j2
+    dest: /etc/emptty/conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: restart emptty
+
+- name: Disable other display managers
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  become: true
+  loop:
+    - gdm.service
+    - sddm.service
+    - lightdm.service
+  failed_when: false
+  ignore_errors: true
+
+- name: Enable emptty service
+  ansible.builtin.systemd:
+    name: emptty.service
+    enabled: true
+  become: true
+  when: emptty_enabled | default(true)

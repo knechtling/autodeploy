@@ -1,0 +1,22 @@
+---
+# VM-specific variables
+hosttype: vm
+
+# Network interface (common for VMs)
+net_interface: enp0s3  # VirtualBox default
+# Alternatives: ens3 (KVM), ens33 (VMware)
+
+# VM-specific packages (minimal)
+vm_packages:
+  - firefox
+
+# VM-specific AUR (minimal)
+vm_aur: []
+
+# Emptty configuration
+emptty_enabled: true
+emptty_autologin: true  # Convenient for testing VMs
+
+# DO NOT degrade VMs
+# No special scaling, no disabled animations
+vm_optimizations: false

@@ -1,0 +1,35 @@
+# emptty configuration
+# See: man emptty
+
+# TTY to use
+TTY_NUMBER=7
+
+# Print PAM errors to terminal
+PRINT_ISSUE=true
+
+# Default user (for autologin)
+{% if emptty_autologin | default(false) %}
+AUTOLOGIN=true
+AUTOLOGIN_SESSION=dwl
+DEFAULT_USER={{ user }}
+{% else %}
+AUTOLOGIN=false
+{% endif %}
+
+# Logging
+LOGGING=rotate
+LOGGING_FILE=/var/log/emptty/{{ user }}.log
+
+# Hide information on screen
+HIDE_ENTER_LOGIN=false
+HIDE_ENTER_PASSWORD=false
+
+# Session selection
+ENABLE_NUMLOCK=true
+
+# Allow dynamic motd
+DYNAMIC_MOTD=true
+MOTD=/etc/emptty/motd
+
+# Desktop environment selection
+XINITRC_LAUNCH=false

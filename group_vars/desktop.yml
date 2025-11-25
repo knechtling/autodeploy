@@ -95,6 +95,8 @@ wayland_pkgs:
   - libxkbcommon
   - wayland-protocols
   - pkg-config
+  - fcft
+  - tllist
 # Extra features: notification daemon, wallpaper setter etc...
   - mako
   - swaybg
