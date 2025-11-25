@@ -5,6 +5,28 @@
     state: present
   become: true
 
+- name: Ensure emptty PAM configuration is present and correct
+  block:
+    - name: Check if /etc/pam.d/emptty exists
+      ansible.builtin.stat:
+        path: /etc/pam.d/emptty
+      register: emptty_pam
+
+    - name: Install correct /etc/pam.d/emptty
+      ansible.builtin.copy:
+        dest: /etc/pam.d/emptty
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          #%PAM-1.0
+          auth        include     system-login
+          account     include     system-login
+          password    include     system-login
+          session     include     system-login
+      become: true
+  tags: ['pam', 'emptty']
+
 - name: Create emptty config directory
   ansible.builtin.file:
     path: /etc/emptty
