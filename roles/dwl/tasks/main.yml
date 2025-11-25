@@ -9,6 +9,12 @@
     state: present
   become: true
 
+- name: Ensure slstatus build dependencies are installed
+  community.general.pacman:
+    name: "{{ slstatus_build_deps }}"
+    state: present
+  become: true
+
 - name: Ensure pkg-config symlink for versioned wlroots
   ansible.builtin.file:
     src: "{{ wlroots_pc_file }}"
@@ -100,6 +106,25 @@
     mode: '0755'
   become: true
 
+- name: Ensure dwl data directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/share/dwl"
+    state: directory
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0755'
+  become: true
+
+- name: Install default dwl wallpaper
+  ansible.builtin.copy:
+    src: "{{ dwl_wallpaper_source }}"
+    dest: "{{ dwl_wallpaper_target }}"
+    owner: "{{ user }}"
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: "{{ user }}"
+
 - name: Install dwl-session launcher
   ansible.builtin.copy:
     dest: "{{ dwl_launcher_path }}"
@@ -114,7 +139,9 @@
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP={{ dwl_session_name }}
       export XDG_SESSION_DESKTOP={{ dwl_session_name }}
-      exec dbus-run-session -- dwl >>"$HOME/.local/share/dwl.log" 2>&1
+      swaybg -m fill -i "$HOME/.local/share/dwl/wallpaper.jpg" &
+      slstatus &
+      exec dbus-run-session -- dwl >>"$HOME/.local/share/dwl/dwl.log" 2>&1
   become: true
 
 - name: Install wayland session desktop entry
@@ -139,4 +166,22 @@
       Exec={{ dwl_launcher_path }}
       Type=Application
       DesktopNames={{ dwl_session_name }}
+  become: true
+
+- name: Clone or update slstatus repository
+  ansible.builtin.git:
+    repo: "{{ slstatus_repo }}"
+    dest: "{{ slstatus_src_dir }}"
+    version: "{{ slstatus_branch }}"
+    force: true
+    update: true
+  become: true
+  become_user: "{{ user }}"
+
+- name: Build and install slstatus
+  community.general.make:
+    chdir: "{{ slstatus_src_dir }}"
+    target: install
+    params:
+      PREFIX: "{{ slstatus_install_prefix }}"
   become: true

@@ -15,3 +15,16 @@ dwl_build_deps_base:
   - seatd
   - fcft
   - tllist
+
+# slstatus build settings
+slstatus_repo: https://github.com/knechtling/slstatus
+slstatus_branch: main
+slstatus_src_dir: "/home/{{ user }}/.local/src/slstatus"
+slstatus_install_prefix: /usr/local
+slstatus_build_deps:
+  - libx11
+  - libxinerama
+
+# Wallpaper defaults
+dwl_wallpaper_source: wallpaper.jpg
+dwl_wallpaper_target: "/home/{{ user }}/.local/share/dwl/wallpaper.jpg"
