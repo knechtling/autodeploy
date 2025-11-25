@@ -9,14 +9,35 @@
     state: present
   become: true
 
-- name: Ensure pkg-config symlink for versioned wlroots
+- name: Locate wlroots pkg-config file
+  ansible.builtin.find:
+    paths: "{{ dwl_pkgconfig_dirs }}"
+    patterns: "wlroots*.pc"
+    recurse: true
+    file_type: file
+  register: wlroots_pc_files
+
+- name: Select wlroots pkg-config path
+  ansible.builtin.set_fact:
+    wlroots_pc_real: "{{ (wlroots_pc_files.files | map(attribute='path') | list | first) | default('') }}"
+  when: wlroots_pc_files.matched | default(0) | int > 0
+
+- name: Fail if wlroots pkg-config file not found
+  ansible.builtin.fail:
+    msg: "wlroots pkg-config file not found. Install wlroots0.17/0.18/0.19 or set wlroots_pkg appropriately."
+  when: wlroots_pc_real is not defined or wlroots_pc_real == ''
+
+- name: Ensure pkg-config symlink for wlroots
   ansible.builtin.file:
-    src: "{{ wlroots_pc_file }}"
+    src: "{{ wlroots_pc_real }}"
     dest: /usr/lib/pkgconfig/wlroots.pc
     state: link
     force: true
   become: true
-  when: wlroots_version | length > 0
+
+- name: Determine wlroots pkgconfig dir
+  ansible.builtin.set_fact:
+    wlroots_pc_dir_resolved: "{{ wlroots_pc_real | dirname }}"
 
 - name: Enable seatd service for Wayland session permissions
   ansible.builtin.systemd:
@@ -24,6 +45,19 @@
     enabled: true
     state: started
   become: true
+
+- name: Locate wlroots include directory
+  ansible.builtin.find:
+    paths: /usr/include
+    patterns: "wlroots*"
+    file_type: directory
+    depth: 1
+  register: wlroots_include_dirs
+
+- name: Select wlroots include path
+  ansible.builtin.set_fact:
+    wlroots_include_dir: "{{ (wlroots_include_dirs.files | map(attribute='path') | list | first) | default('') }}"
+  when: wlroots_include_dirs.matched | default(0) | int > 0
 
 - name: Ensure source directory exists
   ansible.builtin.file:
@@ -80,7 +114,8 @@
     target: install
   become: true
   environment:
-    PKG_CONFIG_PATH: "{{ wlroots_pc_dir }}:/usr/lib/pkgconfig"
+    PKG_CONFIG_PATH: "{{ wlroots_pc_dir_resolved }}:/usr/lib/pkgconfig"
+    CFLAGS: "{{ '-I' + wlroots_include_dir if wlroots_include_dir is defined and wlroots_include_dir else omit }}"
 
 - name: Ensure local bin exists
   ansible.builtin.file:
