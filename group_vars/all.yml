@@ -16,6 +16,12 @@ dwl_session_name: dwl
 dwl_use_custom_config: true
 dwl_config_source: "/home/{{ user }}/dotfiles/.config/dwl/config.h"
 
+# wlroots package source (repo|aur)
+wlroots_pkg: wlroots
+wlroots_pkg_source: repo
+wlroots_repo_packages: "{{ [wlroots_pkg] if wlroots_pkg_source == 'repo' else [] }}"
+wlroots_aur_packages: "{{ [wlroots_pkg] if wlroots_pkg_source == 'aur' else [] }}"
+
 # Base packages for all systems
 base_packages:
   - base-devel
@@ -33,7 +39,6 @@ base_packages:
 # Wayland core (no X11)
 wayland_core_packages:
   - wayland
-  - wlroots
   - wayland-protocols
   - libinput
   - libxkbcommon
@@ -112,5 +117,5 @@ host_packages: []
 host_aur_packages: []
 
 # Aggregate lists used by pacman role
-packages: "{{ base_packages + wayland_core_packages + wayland_tooling + audio_packages + font_packages + common_apps + (host_packages | default([])) }}"
-aur_packages: "{{ aur_base + (host_aur_packages | default([])) }}"
+packages: "{{ base_packages + wayland_core_packages + wlroots_repo_packages + wayland_tooling + audio_packages + font_packages + common_apps + (host_packages | default([])) }}"
+aur_packages: "{{ aur_base + wlroots_aur_packages + (host_aur_packages | default([])) }}"

@@ -1,8 +1,10 @@
 ---
-dwl_build_deps:
+wlroots_pkg: "{{ wlroots_pkg | default('wlroots') }}"
+wlroots_pkg_source: "{{ wlroots_pkg_source | default('repo') }}"
+
+dwl_build_deps_base:
   - base-devel
   - pkgconf
-  - wlroots
   - wayland
   - wayland-protocols
   - libinput

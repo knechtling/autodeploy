@@ -1,7 +1,11 @@
 ---
-- name: Ensure dwl build dependencies are installed
+- name: Build list of repo dependencies
+  ansible.builtin.set_fact:
+    dwl_repo_deps: "{{ dwl_build_deps_base + ([wlroots_pkg] if wlroots_pkg_source == 'repo' else []) }}"
+
+- name: Ensure dwl build dependencies are installed (repo)
   community.general.pacman:
-    name: "{{ dwl_build_deps }}"
+    name: "{{ dwl_repo_deps }}"
     state: present
   become: true
 
