@@ -9,36 +9,14 @@
     state: present
   become: true
 
-- name: Locate wlroots pkg-config file
-  ansible.builtin.find:
-    paths: "{{ wlroots_pkgconfig_search_paths }}"
-    patterns: "wlroots*.pc"
-    recurse: false
-    file_type: file
-  register: wlroots_pc_files
-
-- name: Select wlroots pkg-config file
-  ansible.builtin.set_fact:
-    wlroots_pc_real: "{{ (wlroots_pc_files.files | map(attribute='path') | list | first) | default('') }}"
-  when: wlroots_pc_files.matched | default(0) | int > 0
-
-- name: Fail if wlroots pkg-config file not found
-  ansible.builtin.fail:
-    msg: "wlroots pkg-config file not found. Install wlroots0.19 (or appropriate version) or adjust wlroots_pkgconfig_search_paths."
-  when: wlroots_pc_real is not defined or wlroots_pc_real == ''
-
-- name: Determine wlroots pkg-config directory
-  ansible.builtin.set_fact:
-    wlroots_pc_dir_resolved: "{{ wlroots_pc_real | dirname }}"
-
-- name: Ensure pkg-config alias for wlroots
+- name: Ensure pkg-config symlink for versioned wlroots
   ansible.builtin.file:
-    src: "{{ wlroots_pc_real }}"
+    src: "{{ wlroots_pc_file }}"
     dest: /usr/lib/pkgconfig/wlroots.pc
     state: link
     force: true
   become: true
-  when: wlroots_pc_real | basename != 'wlroots.pc'
+  when: wlroots_version | length > 0
 
 - name: Enable seatd service for Wayland session permissions
   ansible.builtin.systemd:
@@ -102,7 +80,7 @@
     target: install
   become: true
   environment:
-    PKG_CONFIG_PATH: "{{ wlroots_pc_dir_resolved }}:/usr/lib/pkgconfig"
+    PKG_CONFIG_PATH: "{{ wlroots_pc_dir }}:/usr/lib/pkgconfig"
 
 - name: Ensure local bin exists
   ansible.builtin.file:
