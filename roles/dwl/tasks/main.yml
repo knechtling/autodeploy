@@ -115,15 +115,34 @@
     mode: '0755'
   become: true
 
+- name: Check available wallpaper candidates
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: dwl_wallpaper_stats
+  loop: "{{ dwl_wallpaper_candidates }}"
+  become: true
+  become_user: "{{ user }}"
+
+- name: Select first existing wallpaper
+  ansible.builtin.set_fact:
+    dwl_wallpaper_selected: "{{ (dwl_wallpaper_stats.results | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | map(attribute='item') | list | first) | default('', true) }}"
+
+- name: Warn when no wallpaper found
+  ansible.builtin.debug:
+    msg: "No wallpaper found in candidates {{ dwl_wallpaper_candidates }}; skipping copy."
+  when: dwl_wallpaper_selected | length == 0
+
 - name: Install default dwl wallpaper
   ansible.builtin.copy:
-    src: "{{ dwl_wallpaper_source }}"
+    src: "{{ dwl_wallpaper_selected }}"
     dest: "{{ dwl_wallpaper_target }}"
     owner: "{{ user }}"
     group: wheel
     mode: '0644'
+    remote_src: true
   become: true
   become_user: "{{ user }}"
+  when: dwl_wallpaper_selected | length > 0
 
 - name: Install dwl-session launcher
   ansible.builtin.copy:
