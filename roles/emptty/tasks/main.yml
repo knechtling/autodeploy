@@ -4,3 +4,11 @@
     name: emptty
     state: present
   become: true
+
+- name: Enable and start emptty service
+  ansible.builtin.systemd:
+    name: emptty.service
+    enabled: true
+    state: started
+  become: true
+
