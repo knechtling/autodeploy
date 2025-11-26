@@ -11,7 +11,7 @@ dwl_repo: https://github.com/knechtling/dwl
 dwl_branch: main
 dwl_src_dir: "/home/{{ user }}/.local/src/dwl"
 dwl_install_prefix: /usr/local
-dwl_launcher_path: "/home/{{ user }}/.local/bin/dwl-session"
+dwl_launcher_path: "/home/{{ user }}/.local/bin/startw"
 dwl_session_name: dwl
 dwl_use_custom_config: true
 dwl_config_source: "/home/{{ user }}/dotfiles/.config/dwl/config.h"
