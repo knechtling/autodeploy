@@ -9,28 +9,6 @@
     state: present
   become: true
 
-- name: Ensure slstatus build dependencies are installed
-  community.general.pacman:
-    name: "{{ slstatus_build_deps }}"
-    state: present
-  become: true
-
-- name: Ensure pkg-config symlink for versioned wlroots
-  ansible.builtin.file:
-    src: "{{ wlroots_pc_file }}"
-    dest: /usr/lib/pkgconfig/wlroots.pc
-    state: link
-    force: true
-  become: true
-  when: wlroots_version | length > 0
-
-- name: Enable seatd service for Wayland session permissions
-  ansible.builtin.systemd:
-    name: seatd.service
-    enabled: true
-    state: started
-  become: true
-
 - name: Ensure source directory exists
   ansible.builtin.file:
     path: "{{ dwl_src_dir }}"
@@ -50,33 +28,6 @@
     update: true
   become: true
   become_user: "{{ user }}"
-
-- name: Check for custom dwl config
-  ansible.builtin.stat:
-    path: "{{ dwl_config_source }}"
-  register: dwl_config
-  become: true
-  become_user: "{{ user }}"
-
-- name: Copy custom config.h when available
-  ansible.builtin.copy:
-    src: "{{ dwl_config_source }}"
-    dest: "{{ dwl_src_dir }}/config.h"
-    owner: "{{ user }}"
-    group: wheel
-    mode: '0644'
-  when:
-    - dwl_use_custom_config | default(false)
-    - dwl_config.stat.exists
-  become: true
-  become_user: "{{ user }}"
-
-- name: Warn when custom dwl config is missing
-  ansible.builtin.debug:
-    msg: "dwl_use_custom_config enabled but {{ dwl_config_source }} not found; using repository defaults"
-  when:
-    - dwl_use_custom_config | default(false)
-    - not dwl_config.stat.exists
 
 - name: Build and install dwl
   community.general.make:
@@ -113,54 +64,6 @@
     owner: "{{ user }}"
     group: wheel
     mode: '0755'
-  become: true
-
-- name: Check available wallpaper candidates
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  register: dwl_wallpaper_stats
-  loop: "{{ dwl_wallpaper_candidates }}"
-  become: true
-  become_user: "{{ user }}"
-
-- name: Select first existing wallpaper
-  ansible.builtin.set_fact:
-    dwl_wallpaper_selected: "{{ (dwl_wallpaper_stats.results | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | map(attribute='item') | list | first) | default('', true) }}"
-
-- name: Warn when no wallpaper found
-  ansible.builtin.debug:
-    msg: "No wallpaper found in candidates {{ dwl_wallpaper_candidates }}; skipping copy."
-  when: dwl_wallpaper_selected | length == 0
-
-- name: Install default dwl wallpaper
-  ansible.builtin.copy:
-    src: "{{ dwl_wallpaper_selected }}"
-    dest: "{{ dwl_wallpaper_target }}"
-    owner: "{{ user }}"
-    group: wheel
-    mode: '0644'
-    remote_src: true
-  become: true
-  become_user: "{{ user }}"
-  when: dwl_wallpaper_selected | length > 0
-
-- name: Install dwl-session launcher
-  ansible.builtin.copy:
-    dest: "{{ dwl_launcher_path }}"
-    owner: "{{ user }}"
-    group: wheel
-    mode: '0755'
-    content: |
-      #!/bin/sh
-      export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-      export MOZ_ENABLE_WAYLAND=1
-      export QT_QPA_PLATFORM=wayland
-      export XDG_SESSION_TYPE=wayland
-      export XDG_CURRENT_DESKTOP={{ dwl_session_name }}
-      export XDG_SESSION_DESKTOP={{ dwl_session_name }}
-      swaybg -m fill -i "$HOME/.local/share/dwl/wallpaper.jpg" &
-      slstatus &
-      exec dbus-run-session -- dwl >>"$HOME/.local/share/dwl/dwl.log" 2>&1
   become: true
 
 - name: Install wayland session desktop entry
@@ -203,4 +106,22 @@
     target: install
     params:
       PREFIX: "{{ slstatus_install_prefix }}"
+  become: true
+
+- name: Ensure wallpapers directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/share/wallpapers"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: "0755"
+  become: true
+
+- name: Copy wallpaper.jpg to wallpapers directory
+  ansible.builtin.copy:
+    src: "wallpaper.jpg"
+    dest: "/home/{{ user }}/.local/share/wallpapers/wallpaper.jpg"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: "0644"
   become: true

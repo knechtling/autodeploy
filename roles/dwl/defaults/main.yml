@@ -24,11 +24,3 @@ slstatus_install_prefix: /usr/local
 slstatus_build_deps:
   - libx11
   - libxinerama
-
-# Wallpaper defaults
-dwl_wallpaper_candidates:
-  - "{{ dwl_wallpaper_source | default('/home/' + user + '/.local/share/wallpapers/wallpaper.jpg') }}"
-  - "/home/{{ user }}/.local/share/wallpapers/wallpaper.jpg"
-  - "/home/{{ user }}/Pictures/wallpaper.jpg"
-  - "/usr/share/backgrounds/archlinux/default.jpg"
-dwl_wallpaper_target: "/home/{{ user }}/.local/share/dwl/wallpaper.jpg"

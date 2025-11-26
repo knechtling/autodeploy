@@ -19,20 +19,6 @@
     recurse: true
   become: true
 
-- name: Remove legacy X11 startup files
-  ansible.builtin.file:
-    path: "/home/{{ user }}/{{ item }}"
-    state: absent
-  loop:
-    - .xinitrc
-    - .Xresources
-    - .xprofile
-    - .xsession
-    - .xserverrc
-    - .config/X11
-  become: true
-  become_user: "{{ user }}"
-
 - name: Stow dotfiles into home directory
   become: true
   become_user: "{{ user }}"
