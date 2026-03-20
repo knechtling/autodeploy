@@ -35,6 +35,7 @@ base_packages:
   - cowsay
   - networkmanager
   - openssh
+  - emptty
 
 # Wayland core (no X11)
 wayland_core_packages:
@@ -46,14 +47,17 @@ wayland_core_packages:
   - pkgconf
   - fcft
   - tllist
+  - xdg-desktop-portal
   - xdg-desktop-portal-wlr
+  - xorg-xwayland
+  - qt5-wayland
+  - qt6-wayland
 
 # Wayland userland
 wayland_tooling:
   - foot
   - waybar
   - bemenu-wayland
-  - wofi
   - mako
   - swaybg
   - waylock
@@ -111,6 +115,8 @@ aur_base:
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - tmux-plugin-manager
+  - elephant-all-bin
+  - walker-bin
 
 # Host-specific package hooks (keep lists)
 host_packages: []
