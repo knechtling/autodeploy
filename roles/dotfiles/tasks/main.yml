@@ -1,11 +1,49 @@
 ---
+- name: Check if dotfiles repository exists
+  ansible.builtin.stat:
+    path: "/home/{{ user }}/dotfiles/.git"
+  register: dotfiles_repo_stat
+  become: true
+  become_user: "{{ user }}"
+
+- name: Check dotfiles repository working tree state
+  ansible.builtin.command: git -C "/home/{{ user }}/dotfiles" status --porcelain
+  register: dotfiles_repo_status
+  changed_when: false
+  when: dotfiles_repo_stat.stat.exists
+  become: true
+  become_user: "{{ user }}"
+
+- name: Fail when dotfiles repository has uncommitted changes
+  ansible.builtin.fail:
+    msg: >-
+      Dotfiles repository at /home/{{ user }}/dotfiles has uncommitted or untracked changes.
+      Commit/stash/discard local changes, then rerun sync.
+  when:
+    - dotfiles_repo_stat.stat.exists
+    - dotfiles_repo_status.stdout | trim | length > 0
+
+- name: Ensure dotfiles origin remote exists and points to configured repo
+  ansible.builtin.shell: |
+    if git -C "/home/{{ user }}/dotfiles" remote | grep -qx origin; then
+      git -C "/home/{{ user }}/dotfiles" remote set-url origin "{{ dotfiles_repo }}"
+    else
+      git -C "/home/{{ user }}/dotfiles" remote add origin "{{ dotfiles_repo }}"
+    fi
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: dotfiles_repo_stat.stat.exists
+  become: true
+  become_user: "{{ user }}"
+
 - name: Ensure dotfiles repository is present
   ansible.builtin.git:
     repo: "{{ dotfiles_repo }}"
     version: "{{ dotfiles_branch }}"
     dest: "/home/{{ user }}/dotfiles"
     update: true
-    force: true
+    force: false
   become: true
   become_user: "{{ user }}"
 
