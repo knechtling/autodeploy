@@ -9,15 +9,16 @@
 
 - name: Show missing packages
   ansible.builtin.debug:
-    msg: "Installing: {{ missing_packages }}"
+    msg: >-
+      Hey, you might be missing some packages.
+      Install them with:
+      sudo pacman -S --needed {{ missing_packages | join(' ') }}
   when: missing_packages | length > 0
 
-- name: Install only missing packages
-  community.general.pacman:
-    name: "{{ missing_packages }}"
-    state: present
-  become: true
-  when: missing_packages | length > 0
+- name: Report when package set is already complete
+  ansible.builtin.debug:
+    msg: "All configured repo packages are already installed."
+  when: missing_packages | length == 0
 
 - name: Ensure NetworkManager is enabled
   ansible.builtin.systemd:
