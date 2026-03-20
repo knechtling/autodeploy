@@ -3,8 +3,7 @@
 hosttype: vm
 dotfiles_branch: wayland
 
-host_packages:
-  - firefox
+host_packages: []
 
 host_aur_packages: []
 
