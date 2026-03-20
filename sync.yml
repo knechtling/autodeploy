@@ -1,0 +1,98 @@
+---
+- name: Sync local workstation
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    sync_profile: "{{ sync_profile | default('desktop') }}"
+
+  pre_tasks:
+    - name: Check sync profile vars file exists
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/group_vars/{{ sync_profile }}.yml"
+      register: sync_profile_vars
+
+    - name: Fail when sync profile vars file is missing
+      ansible.builtin.fail:
+        msg: >-
+          Missing group_vars/{{ sync_profile }}.yml.
+          Run with -e sync_profile=<desktop|laptop|vm>.
+      when: not sync_profile_vars.stat.exists
+
+    - name: Load common package list variables
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/group_vars/all.yml"
+
+    - name: Load profile-specific package list variables
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/group_vars/{{ sync_profile }}.yml"
+
+    - name: Ensure timeshift is installed for pre-sync snapshot
+      community.general.pacman:
+        name: timeshift
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Create pre-sync timeshift snapshot
+      ansible.builtin.command:
+        cmd: "timeshift --create --comments 'pre-sync {{ ansible_date_time.iso8601 }}' --tags D"
+      become: true
+      changed_when: true
+
+  roles:
+    - pacman
+    - dotfiles
+    - dwl
+
+  post_tasks:
+    - name: Collect service facts
+      ansible.builtin.service_facts:
+
+    - name: Build critical service list for health checks
+      ansible.builtin.set_fact:
+        critical_services: >-
+          {{
+            [
+              'seatd.service',
+              'NetworkManager.service' if 'networkmanager' in (packages | default([])) else '',
+              'sshd.service' if 'openssh' in (packages | default([])) else ''
+            ] | reject('equalto', '') | list
+          }}
+
+    - name: Ensure critical services are running
+      ansible.builtin.fail:
+        msg: >-
+          Service {{ item }} is unhealthy.
+          state={{ ansible_facts.services[item].state | default('missing') }},
+          status={{ ansible_facts.services[item].status | default('missing') }}.
+      when: >-
+        (ansible_facts.services[item] is not defined) or
+        (ansible_facts.services[item].state | default('') != 'running') or
+        (ansible_facts.services[item].status | default('') in ['disabled', 'masked', 'not-found'])
+      loop: "{{ critical_services }}"
+
+    - name: Report healthy critical services
+      ansible.builtin.debug:
+        msg: "Service {{ item }} is running (status={{ ansible_facts.services[item].status | default('unknown') }})"
+      loop: "{{ critical_services }}"
+      when:
+        - ansible_facts.services[item] is defined
+        - ansible_facts.services[item].state | default('') == 'running'
+
+    - name: Check if running kernel modules directory exists
+      ansible.builtin.stat:
+        path: "/usr/lib/modules/{{ ansible_kernel }}"
+      register: running_kernel_modules
+
+    - name: Warn when reboot is recommended
+      ansible.builtin.debug:
+        msg: >-
+          Reboot recommended: running kernel {{ ansible_kernel }} no longer has modules on disk.
+          A newer kernel is installed; reboot to complete sync safely.
+      when: not running_kernel_modules.stat.exists
+
+    - name: Report when no reboot is needed
+      ansible.builtin.debug:
+        msg: "No reboot required: running kernel {{ ansible_kernel }} modules are present."
+      when: running_kernel_modules.stat.exists
