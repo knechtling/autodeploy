@@ -112,16 +112,19 @@ common_apps:
 # AUR packages (all systems)
 aur_base:
   - autojump
+  - ausweisapp
+  - discord-canary
+  - feishin
   - zsh-fast-syntax-highlighting-git
   - zsh-autosuggestions
   - tmux-plugin-manager
   - elephant-all-bin
   - walker-bin
-
-# Host-specific package hooks (keep lists)
-host_packages: []
-host_aur_packages: []
+  - timeshift-autosnap
+  - tmux-plugin-manager
+  - wlr-which-key
+  - yt-dlp-drop-in
 
 # Aggregate lists used by pacman role
-packages: "{{ base_packages + wayland_core_packages + wlroots_repo_packages + wayland_tooling + audio_packages + font_packages + common_apps + (host_packages | default([])) }}"
-aur_packages: "{{ aur_base + wlroots_aur_packages + (host_aur_packages | default([])) }}"
+packages: "{{ base_packages + wayland_core_packages + wlroots_repo_packages + wayland_tooling + audio_packages + font_packages + common_apps }}"
+aur_packages: "{{ aur_base + wlroots_aur_packages }}"

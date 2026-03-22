@@ -3,29 +3,11 @@
   hosts: localhost
   connection: local
   gather_facts: true
-  vars:
-    sync_profile: "{{ sync_profile | default('desktop') }}"
 
   pre_tasks:
-    - name: Check sync profile vars file exists
-      ansible.builtin.stat:
-        path: "{{ playbook_dir }}/group_vars/{{ sync_profile }}.yml"
-      register: sync_profile_vars
-
-    - name: Fail when sync profile vars file is missing
-      ansible.builtin.fail:
-        msg: >-
-          Missing group_vars/{{ sync_profile }}.yml.
-          Run with -e sync_profile=<desktop|laptop|vm>.
-      when: not sync_profile_vars.stat.exists
-
     - name: Load common package list variables
       ansible.builtin.include_vars:
         file: "{{ playbook_dir }}/group_vars/all.yml"
-
-    - name: Load profile-specific package list variables
-      ansible.builtin.include_vars:
-        file: "{{ playbook_dir }}/group_vars/{{ sync_profile }}.yml"
 
     - name: Ensure timeshift is installed for pre-sync snapshot
       community.general.pacman:
