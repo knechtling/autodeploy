@@ -274,8 +274,10 @@
     path: "{{ slstatus_src_dir }}/.git"
   register: slstatus_repo_stat
 
+# Untracked files are ignored: the build below runs in-tree and the slstatus
+# repo has no .gitignore, so *.o and the binary would fail every later run.
 - name: Check slstatus repository working tree state
-  ansible.builtin.command: git -C "{{ slstatus_src_dir }}" status --porcelain
+  ansible.builtin.command: git -C "{{ slstatus_src_dir }}" status --porcelain --untracked-files=no
   register: slstatus_repo_status
   changed_when: false
   when: slstatus_repo_stat.stat.exists
