@@ -1,0 +1,10 @@
+---
+user_group: wheel
+user_env: {}
+dotfiles_dir: "/home/{{ user }}/dotfiles"
+# Stow packages below {{ dotfiles_dir }}/packages
+dotfiles_stow_packages:
+  - config
+  - local
+  - shell
+  - nvim-native

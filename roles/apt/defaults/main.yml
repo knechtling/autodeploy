@@ -1,0 +1,3 @@
+---
+# Extra environment for tasks run as the user (e.g. proxy, SSH_AUTH_SOCK)
+user_env: {}

@@ -1,0 +1,27 @@
+---
+- name: Configure Debian workstation with dwl
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  pre_tasks:
+    - name: Load common variables
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/group_vars/all.yml"
+      tags: always
+
+    - name: Load Debian overrides
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/vars/debian.yml"
+      tags: always
+
+    - name: Fail when not running on Debian
+      ansible.builtin.assert:
+        that: ansible_facts.os_family == 'Debian'
+        fail_msg: "debian.yml targets Debian, found {{ ansible_facts.distribution }}"
+      tags: always
+
+  roles:
+    - { role: apt, tags: apt }
+    - { role: dotfiles, tags: dotfiles }
+    - { role: dwl, tags: dwl }

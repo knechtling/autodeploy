@@ -70,6 +70,30 @@ wayland_tooling:
   - wlr-randr
   - wtype
 
+# Desktop services GNOME would provide: network/VPN, bluetooth, polkit,
+# power, idle, automount (used by nm-menu, bt-menu, idle-ctl, dwl-startup.sh)
+desktop_session_packages:
+  - swayidle
+  - swaylock
+  - wlopm
+  - brightnessctl
+  - upower
+  - power-profiles-daemon
+  - network-manager-applet
+  - networkmanager-openvpn
+  - networkmanager-openconnect
+  - networkmanager-vpnc
+  - networkmanager-strongswan
+  - wireguard-tools
+  - bluez
+  - bluez-utils
+  - blueman
+  - polkit-gnome
+  - udiskie
+  - wdisplays
+  - pavucontrol
+  - zenity
+
 # Audio (all systems)
 audio_packages:
   - pipewire
@@ -126,5 +150,5 @@ aur_base:
   - yt-dlp-drop-in
 
 # Aggregate lists used by pacman role
-packages: "{{ base_packages + wayland_core_packages + wlroots_repo_packages + wayland_tooling + audio_packages + font_packages + common_apps }}"
+packages: "{{ base_packages + wayland_core_packages + wlroots_repo_packages + wayland_tooling + desktop_session_packages + audio_packages + font_packages + common_apps }}"
 aur_packages: "{{ aur_base + wlroots_aur_packages }}"

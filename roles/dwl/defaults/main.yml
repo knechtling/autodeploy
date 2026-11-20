@@ -24,3 +24,12 @@ slstatus_install_prefix: /usr/local
 slstatus_build_deps:
   - libx11
   - libxinerama
+
+# Group owning files in the user's home (Debian has no wheel group)
+user_group: wheel
+# Extra environment for tasks run as the user (e.g. proxy, SSH_AUTH_SOCK)
+user_env: {}
+dwl_enable_elephant: true
+# Replace the network interface in slstatus config.h (unset: keep repo value)
+slstatus_net_interface: ""
+slstatus_stamp_file: "/home/{{ user }}/.local/share/dwl/slstatus-build-stamp"

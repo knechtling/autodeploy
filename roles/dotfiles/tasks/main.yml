@@ -1,13 +1,13 @@
 ---
 - name: Check if dotfiles repository exists
   ansible.builtin.stat:
-    path: "/home/{{ user }}/dotfiles/.git"
+    path: "{{ dotfiles_dir }}/.git"
   register: dotfiles_repo_stat
   become: true
   become_user: "{{ user }}"
 
 - name: Check dotfiles repository working tree state
-  ansible.builtin.command: git -C "/home/{{ user }}/dotfiles" status --porcelain
+  ansible.builtin.command: git -C "{{ dotfiles_dir }}" status --porcelain
   register: dotfiles_repo_status
   changed_when: false
   when: dotfiles_repo_stat.stat.exists
@@ -17,7 +17,7 @@
 - name: Fail when dotfiles repository has uncommitted changes
   ansible.builtin.fail:
     msg: >-
-      Dotfiles repository at /home/{{ user }}/dotfiles has uncommitted or untracked changes.
+      Dotfiles repository at {{ dotfiles_dir }} has uncommitted or untracked changes.
       Commit/stash/discard local changes, then rerun sync.
   when:
     - dotfiles_repo_stat.stat.exists
@@ -25,10 +25,10 @@
 
 - name: Ensure dotfiles origin remote exists and points to configured repo
   ansible.builtin.shell: |
-    if git -C "/home/{{ user }}/dotfiles" remote | grep -qx origin; then
-      git -C "/home/{{ user }}/dotfiles" remote set-url origin "{{ dotfiles_repo }}"
+    if git -C "{{ dotfiles_dir }}" remote | grep -qx origin; then
+      git -C "{{ dotfiles_dir }}" remote set-url origin "{{ dotfiles_repo }}"
     else
-      git -C "/home/{{ user }}/dotfiles" remote add origin "{{ dotfiles_repo }}"
+      git -C "{{ dotfiles_dir }}" remote add origin "{{ dotfiles_repo }}"
     fi
   args:
     executable: /bin/bash
@@ -41,28 +41,28 @@
   ansible.builtin.git:
     repo: "{{ dotfiles_repo }}"
     version: "{{ dotfiles_branch }}"
-    dest: "/home/{{ user }}/dotfiles"
+    dest: "{{ dotfiles_dir }}"
     update: true
     force: false
   become: true
   become_user: "{{ user }}"
+  environment: "{{ user_env }}"
 
 - name: Create zsh cache dir
   ansible.builtin.file:
     path: "/home/{{ user }}/.cache/zsh"
     mode: '0700'
     owner: "{{ user }}"
-    group: "wheel"
+    group: "{{ user_group }}"
     state: directory
     recurse: true
   become: true
 
 - name: Stow dotfiles into home directory
+  ansible.builtin.command:
+    argv: "{{ ['stow', '-d', dotfiles_dir ~ '/packages', '-t', '/home/' ~ user,
+               '--dotfiles', '--no-folding', '-v'] + dotfiles_stow_packages }}"
+  register: dotfiles_stow_result
+  changed_when: dotfiles_stow_result.stderr is search('^LINK', multiline=true)
   become: true
   become_user: "{{ user }}"
-  ansible.builtin.shell: |
-    stow -t "$HOME" --dotfiles .
-  args:
-    chdir: "/home/{{ user }}/dotfiles"
-  environment:
-    HOME: "/home/{{ user }}"

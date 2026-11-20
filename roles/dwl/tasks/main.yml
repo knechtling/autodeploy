@@ -4,17 +4,18 @@
     dwl_repo_deps: "{{ dwl_build_deps_base + ([wlroots_pkg] if wlroots_pkg_source == 'repo' else []) }}"
 
 - name: Ensure dwl build dependencies are installed (repo)
-  community.general.pacman:
+  ansible.builtin.package:
     name: "{{ dwl_repo_deps }}"
     state: present
   become: true
 
 - name: Ensure slstatus build dependencies are installed
-  community.general.pacman:
+  ansible.builtin.package:
     name: "{{ slstatus_build_deps }}"
     state: present
   become: true
 
+# Arch installs versioned wlroots outside the default pkg-config path
 - name: Ensure pkg-config symlink for versioned wlroots
   ansible.builtin.file:
     src: "{{ wlroots_pc_file }}"
@@ -22,7 +23,9 @@
     state: link
     force: true
   become: true
-  when: wlroots_version | length > 0
+  when:
+    - ansible_facts.os_family == 'Archlinux'
+    - wlroots_version | length > 0
 
 # Systemd
 
@@ -33,6 +36,43 @@
     state: started
   become: true
 
+# GNOME handles the power key itself (suspend); in dwl logind would power
+# off immediately with its default HandlePowerKey=poweroff.
+- name: Ensure logind drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/logind.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Make the power key suspend outside GNOME
+  ansible.builtin.copy:
+    dest: /etc/systemd/logind.conf.d/10-power-key.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Login]
+      HandlePowerKey=suspend
+      HandlePowerKeyLongPress=poweroff
+  become: true
+  register: dwl_logind_conf
+
+# reload, not restart: restarting logind kills the running sessions
+- name: Reload logind for the power key setting
+  ansible.builtin.systemd:
+    name: systemd-logind.service
+    state: reloaded
+  become: true
+  when: dwl_logind_conf.changed
+
+- name: Get user id
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user }}"
+
 - name: Enable elephant
   ansible.builtin.systemd:
     name: elephant.service
@@ -41,14 +81,30 @@
     scope: user
   become: true
   become_user: "{{ user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_facts.getent_passwd[user][1] }}"
+  when: dwl_enable_elephant
 
 - name: Ensure source directory exists
   ansible.builtin.file:
     path: "{{ dwl_src_dir }}"
     state: directory
     owner: "{{ user }}"
-    group: wheel
+    group: "{{ user_group }}"
     mode: "0755"
+  become: true
+
+# Earlier runs built as root; the user must own the trees to build in them
+- name: Ensure source trees are owned by the user
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user_group }}"
+    recurse: true
+  loop:
+    - "{{ dwl_src_dir }}"
+    - "{{ slstatus_src_dir }}"
   become: true
 
 - name: Check if dwl repository exists
@@ -85,6 +141,7 @@
   register: dwl_git_result
   become: true
   become_user: "{{ user }}"
+  environment: "{{ user_env }}"
 
 - name: Check for custom dwl config
   ansible.builtin.stat:
@@ -98,7 +155,7 @@
     src: "{{ dwl_config_source }}"
     dest: "{{ dwl_src_dir }}/config.h"
     owner: "{{ user }}"
-    group: wheel
+    group: "{{ user_group }}"
     mode: "0644"
   when:
     - dwl_use_custom_config | default(false)
@@ -114,7 +171,36 @@
     - dwl_use_custom_config | default(false)
     - not dwl_config.stat.exists
 
-- name: Build and install dwl
+# make only creates config.h when missing, so a stale copy would survive
+# updates of config.def.h
+- name: Use repository config.def.h as config.h
+  ansible.builtin.copy:
+    src: "{{ dwl_src_dir }}/config.def.h"
+    dest: "{{ dwl_src_dir }}/config.h"
+    remote_src: true
+    owner: "{{ user }}"
+    group: "{{ user_group }}"
+    mode: "0644"
+  when: not (dwl_use_custom_config | default(false) and dwl_config.stat.exists)
+  register: dwl_config_def_result
+  become: true
+  become_user: "{{ user }}"
+
+- name: Build dwl
+  community.general.make:
+    chdir: "{{ dwl_src_dir }}"
+    params:
+      PREFIX: "{{ dwl_install_prefix }}"
+  become: true
+  become_user: "{{ user }}"
+  environment:
+    PKG_CONFIG_PATH: "{{ wlroots_pc_dir }}:/usr/lib/pkgconfig"
+  when: >-
+    dwl_git_result.changed
+    or (dwl_config_copy_result.changed | default(false))
+    or (dwl_config_def_result.changed | default(false))
+
+- name: Install dwl
   community.general.make:
     chdir: "{{ dwl_src_dir }}"
     params:
@@ -123,16 +209,17 @@
   become: true
   environment:
     PKG_CONFIG_PATH: "{{ wlroots_pc_dir }}:/usr/lib/pkgconfig"
-  when:
-    - dwl_git_result is defined
-    - dwl_git_result.changed or (dwl_config_copy_result is defined and dwl_config_copy_result.changed)
+  when: >-
+    dwl_git_result.changed
+    or (dwl_config_copy_result.changed | default(false))
+    or (dwl_config_def_result.changed | default(false))
 
 - name: Ensure local bin exists
   ansible.builtin.file:
     path: "/home/{{ user }}/.local/bin"
     state: directory
     owner: "{{ user }}"
-    group: wheel
+    group: "{{ user_group }}"
     mode: "0755"
   become: true
 
@@ -141,7 +228,7 @@
     path: "/home/{{ user }}/.local/share"
     state: directory
     owner: "{{ user }}"
-    group: wheel
+    group: "{{ user_group }}"
     mode: "0755"
   become: true
 
@@ -150,7 +237,7 @@
     path: "/home/{{ user }}/.local/share/dwl"
     state: directory
     owner: "{{ user }}"
-    group: wheel
+    group: "{{ user_group }}"
     mode: "0755"
   become: true
 
@@ -178,6 +265,43 @@
       DesktopNames={{ dwl_session_name }}
   become: true
 
+# slstatus: with slstatus_net_interface set, config.h is reset before the
+# update and the interface applied again afterwards. A stamp of HEAD and the
+# config.h checksum decides whether to rebuild.
+
+- name: Check if slstatus repository exists
+  ansible.builtin.stat:
+    path: "{{ slstatus_src_dir }}/.git"
+  register: slstatus_repo_stat
+
+- name: Check slstatus repository working tree state
+  ansible.builtin.command: git -C "{{ slstatus_src_dir }}" status --porcelain
+  register: slstatus_repo_status
+  changed_when: false
+  when: slstatus_repo_stat.stat.exists
+  become: true
+  become_user: "{{ user }}"
+
+- name: Fail when slstatus repository has uncommitted changes
+  ansible.builtin.fail:
+    msg: >-
+      slstatus repository at {{ slstatus_src_dir }} has uncommitted or untracked changes.
+      Commit/stash/discard local changes, then rerun sync.
+  when:
+    - slstatus_repo_stat.stat.exists
+    - slstatus_repo_status.stdout_lines
+      | difference([' M config.h'] if slstatus_net_interface else [])
+      | length > 0
+
+- name: Reset slstatus config.h before update
+  ansible.builtin.command: git -C "{{ slstatus_src_dir }}" checkout -- config.h
+  changed_when: false
+  when:
+    - slstatus_repo_stat.stat.exists
+    - slstatus_repo_status.stdout_lines | length > 0
+  become: true
+  become_user: "{{ user }}"
+
 - name: Clone or update slstatus repository
   ansible.builtin.git:
     repo: "{{ slstatus_repo }}"
@@ -185,17 +309,70 @@
     version: "{{ slstatus_branch }}"
     force: false
     update: true
-  register: slstatus_git_result
+  become: true
+  become_user: "{{ user }}"
+  environment: "{{ user_env }}"
+
+- name: Set slstatus network interface
+  ansible.builtin.replace:
+    path: "{{ slstatus_src_dir }}/config.h"
+    regexp: '(\{(?:netspeed_rx|netspeed_tx|ipv4),\s*"[^"]*",\s*)"[^"]*"\}'
+    replace: '\1"{{ slstatus_net_interface }}"}'
+  changed_when: false
+  when: slstatus_net_interface | length > 0
   become: true
   become_user: "{{ user }}"
 
-- name: Build and install slstatus
+- name: Compute slstatus build stamp
+  ansible.builtin.shell: |
+    printf '%s %s\n' "$(git -C "{{ slstatus_src_dir }}" rev-parse HEAD)" \
+      "$(sha1sum < "{{ slstatus_src_dir }}/config.h" | cut -d' ' -f1)"
+  register: slstatus_stamp
+  changed_when: false
+  become: true
+  become_user: "{{ user }}"
+
+- name: Read last slstatus build stamp
+  ansible.builtin.slurp:
+    src: "{{ slstatus_stamp_file }}"
+  register: slstatus_last_stamp
+  failed_when: false
+
+- name: Check whether slstatus is installed
+  ansible.builtin.stat:
+    path: "{{ slstatus_install_prefix }}/bin/slstatus"
+  register: slstatus_bin_stat
+
+- name: Decide whether slstatus needs a rebuild
+  ansible.builtin.set_fact:
+    slstatus_needs_build: >-
+      {{ not slstatus_bin_stat.stat.exists
+         or (slstatus_last_stamp.content | default('') | b64decode) != slstatus_stamp.stdout ~ '\n' }}
+
+- name: Build slstatus
+  community.general.make:
+    chdir: "{{ slstatus_src_dir }}"
+    params:
+      PREFIX: "{{ slstatus_install_prefix }}"
+  become: true
+  become_user: "{{ user }}"
+  when: slstatus_needs_build
+
+- name: Install slstatus
   community.general.make:
     chdir: "{{ slstatus_src_dir }}"
     target: install
     params:
       PREFIX: "{{ slstatus_install_prefix }}"
   become: true
-  when:
-    - slstatus_git_result is defined
-    - slstatus_git_result.changed
+  when: slstatus_needs_build
+
+- name: Record slstatus build stamp
+  ansible.builtin.copy:
+    dest: "{{ slstatus_stamp_file }}"
+    content: "{{ slstatus_stamp.stdout }}\n"
+    owner: "{{ user }}"
+    group: "{{ user_group }}"
+    mode: "0644"
+  become: true
+  when: slstatus_needs_build

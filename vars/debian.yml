@@ -1,0 +1,147 @@
+---
+# Debian overrides, loaded by debian.yml after group_vars/all.yml.
+# Only values that differ from the Arch defaults belong here.
+
+user: "{{ lookup('env', 'USER') }}"
+user_group: "{{ user }}"
+
+# Keep the SSH remote of an existing checkout. Tasks run as the user go
+# through sudo, which strips the agent socket and the proxy settings.
+dotfiles_repo: git@github.com:knechtling/dotfiles.git
+user_env:
+  SSH_AUTH_SOCK: "{{ lookup('env', 'SSH_AUTH_SOCK') }}"
+  http_proxy: "{{ user_proxy }}"
+  https_proxy: "{{ user_proxy }}"
+  no_proxy: "{{ lookup('env', 'no_proxy') or 'localhost,127.0.0.1' }}"
+
+# Proxy from the calling shell, else the one apt is configured with
+user_proxy: >-
+  {{ lookup('env', 'https_proxy')
+     or lookup('pipe', 'eval "$(apt-config shell P Acquire::https::Proxy)"; echo "${P#DIRECT}"') }}
+
+# dwl main builds against wlroots 0.18, which trixie ships as a -dev package
+# with its .pc file in the default multiarch pkg-config path.
+wlroots_pkg: libwlroots-0.18-dev
+wlroots_pkg_source: repo
+
+dwl_build_deps_base:
+  - build-essential
+  - pkg-config
+  - libwayland-dev
+  - wayland-protocols
+  - libinput-dev
+  - libxkbcommon-dev
+  - libpixman-1-dev
+  - libfcft-dev
+  - libtllist-dev
+  - libxcb1-dev
+  - libxcb-icccm4-dev
+  - libdbus-1-dev
+  - librsvg2-dev
+  - libcairo2-dev
+  - seatd
+
+slstatus_build_deps:
+  - libx11-dev
+  - libxinerama-dev
+
+# Laptop: wired interface from the repo config.h does not exist here.
+slstatus_net_interface: wlan0
+
+# Debian names for the Arch lists in group_vars/all.yml. Not packaged in
+# trixie: waylock, wallust, walker, elephant (installed by hand).
+packages:
+  # base
+  - git
+  - stow
+  - zsh
+  - tmux
+  - python3
+  - polkitd
+  - network-manager
+  - openssh-server
+  # wayland core
+  - xdg-desktop-portal
+  - xdg-desktop-portal-wlr
+  - xwayland
+  - qtwayland5
+  - qt6-wayland
+  # wayland userland
+  - foot
+  - waybar
+  - bemenu
+  - wmenu
+  - rofi
+  - mako-notifier
+  - swaybg
+  - swayidle
+  - swaylock
+  - swayosd
+  - grim
+  - slurp
+  - wl-clipboard
+  - cliphist
+  - wf-recorder
+  - kanshi
+  - wlr-randr
+  - wtype
+  - libnotify-bin
+  - psmisc
+  # desktop services GNOME would provide (see group_vars/all.yml)
+  - wlopm
+  - brightnessctl
+  - upower
+  - power-profiles-daemon
+  - network-manager-applet
+  - network-manager-openvpn-gnome
+  - network-manager-openconnect-gnome
+  - network-manager-vpnc-gnome
+  - network-manager-strongswan
+  - wireguard-tools
+  - bluez
+  - blueman
+  - policykit-1-gnome
+  - udiskie
+  - wdisplays
+  - pavucontrol
+  - zenity
+  # audio
+  - pipewire
+  - wireplumber
+  - pipewire-pulse
+  - pipewire-alsa
+  - pulsemixer
+  # fonts
+  - fonts-dejavu
+  - fonts-liberation
+  - fonts-noto-core
+  - fonts-noto-color-emoji
+  - fonts-font-awesome
+  - fonts-linuxlibertine
+  # apps
+  - mpv
+  - imv
+  - zathura
+  - zathura-pdf-poppler
+  - fzf
+  - bat
+  - htop
+  - rsync
+  - unzip
+  - ffmpeg
+  - ffmpegthumbnailer
+  - man-db
+  - socat
+  - moreutils
+  - yt-dlp
+  - ncdu
+  - shellcheck
+  - autojump
+  # build deps for cargo_packages
+  - cargo
+  - libpango1.0-dev
+
+# Not in the Debian archive; built with cargo into ~/.local/bin.
+# 1.3.0 needs Rust >= 1.88 (let chains), trixie ships 1.85.
+cargo_packages:
+  - wlr-which-key@1.2.0

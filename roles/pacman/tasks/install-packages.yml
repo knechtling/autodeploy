@@ -28,6 +28,17 @@
   become: true
   when: "'networkmanager' in (packages | default([]))"
 
+- name: Ensure desktop services are enabled
+  ansible.builtin.systemd:
+    name: "{{ item.service }}"
+    enabled: true
+    state: started
+  become: true
+  loop:
+    - { package: bluez, service: bluetooth.service }
+    - { package: power-profiles-daemon, service: power-profiles-daemon.service }
+  when: item.package in (packages | default([]))
+
 - name: Ensure sshd is enabled
   ansible.builtin.systemd:
     name: sshd.service
