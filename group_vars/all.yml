@@ -93,6 +93,7 @@ desktop_session_packages:
   - wdisplays
   - pavucontrol
   - zenity
+  - solaar
 
 # Audio (all systems)
 audio_packages:

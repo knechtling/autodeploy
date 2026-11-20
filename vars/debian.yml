@@ -106,6 +106,7 @@ packages:
   - wdisplays
   - pavucontrol
   - zenity
+  - solaar
   # audio
   - pipewire
   - wireplumber
