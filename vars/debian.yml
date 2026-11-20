@@ -8,6 +8,7 @@ user_group: "{{ user }}"
 # Keep the SSH remote of an existing checkout. Tasks run as the user go
 # through sudo, which strips the agent socket and the proxy settings.
 dotfiles_repo: git@github.com:knechtling/dotfiles.git
+dwl_repo: git@github.com:knechtling/dwl.git
 user_env:
   SSH_AUTH_SOCK: "{{ lookup('env', 'SSH_AUTH_SOCK') }}"
   http_proxy: "{{ user_proxy }}"
