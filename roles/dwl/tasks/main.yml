@@ -214,6 +214,17 @@
     or (dwl_config_copy_result.changed | default(false))
     or (dwl_config_def_result.changed | default(false))
 
+# Older dwl builds installed upstream's dwl.desktop (Exec=dwl) into
+# PREFIX/share/wayland-sessions with "make install" (the fork no longer
+# does). Display managers read /usr/local/share before /usr/share, so it
+# shadows our session file and dwl starts without startw.
+- name: Remove upstream session file that shadows startw
+  ansible.builtin.file:
+    path: "{{ dwl_install_prefix }}/share/wayland-sessions/{{ dwl_session_name }}.desktop"
+    state: absent
+  become: true
+  when: dwl_install_prefix != '/usr'
+
 - name: Ensure local bin exists
   ansible.builtin.file:
     path: "/home/{{ user }}/.local/bin"

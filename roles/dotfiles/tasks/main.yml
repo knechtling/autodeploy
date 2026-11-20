@@ -58,6 +58,16 @@
     recurse: true
   become: true
 
+# Host env files moved from environment.d to hosttype/ (systemd loaded all
+# three at once); stow without --restow leaves the old links dangling.
+- name: Remove old host env links from environment.d
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.config/environment.d/10-{{ item }}.conf"
+    state: absent
+  loop: [desktop, laptop, vm]
+  become: true
+  become_user: "{{ user }}"
+
 - name: Stow dotfiles into home directory
   ansible.builtin.command:
     argv: "{{ ['stow', '-d', dotfiles_dir ~ '/packages', '-t', '/home/' ~ user,
